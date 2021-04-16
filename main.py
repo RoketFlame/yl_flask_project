@@ -8,9 +8,11 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 
 from data.news import News
 from data.users import User
+from data.communities import Communities
+
+from forms.community import CommunityForm
 from forms.news import NewsForm
 from forms.user import RegisterForm
-
 from forms.loginform import LoginForm
 
 db_session.global_init("db/blogs.db")
@@ -37,7 +39,25 @@ def index():
     return render_template("index.html", news=news)
 
 
-@app.route('/news', methods=['GET', 'POST'])
+@app.route("/news")
+def news():
+    db_sess = db_session.create_session()
+    if current_user.is_authenticated:
+        news = db_sess.query(News).filter(
+            (News.user == current_user) | (News.is_private != True))
+    else:
+        news = db_sess.query(News).filter(News.is_private != True)
+    return render_template("news.html", news=news)
+
+
+@app.route('/communities')
+def communities():
+    db_sess = db_session.create_session()
+    coms = db_sess.query(Communities)
+    return render_template('communities.html', coms=coms)
+
+
+@app.route('/news_create', methods=['GET', 'POST'])
 @login_required
 def add_news():
     form = NewsForm()
@@ -51,7 +71,7 @@ def add_news():
         db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/')
-    return render_template('news.html', title='Добавление новости',
+    return render_template('create_news.html', title='Добавление новости',
                            form=form)
 
 
@@ -102,7 +122,7 @@ def reqister():
     return render_template('register.html', title='Регистрация', form=form)
 
 
-@app.route('/news/<int:id>', methods=['GET', 'POST'])
+@app.route('/news_edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_news(id):
     form = NewsForm()
@@ -130,7 +150,7 @@ def edit_news(id):
             return redirect('/')
         else:
             abort(404)
-    return render_template('news.html', title='Редактирование новости', form=form)
+    return render_template('create_news.html', title='Редактирование новости', form=form)
 
 
 @app.route('/news_delete/<int:id>', methods=['GET', 'POST'])
@@ -146,6 +166,53 @@ def news_delete(id):
     else:
         abort(404)
     return redirect('/')
+
+
+@app.route('/communities_create', methods=['GET', 'POST'])
+@login_required
+def create_community():
+    form = CommunityForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        com = Communities()
+        com.name = form.name.data
+        com.description = form.description.data
+        com.creator = current_user
+        current_user.communities.append(com)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('create_community.html', title='Добавление сообщества',
+                           form=form)
+
+
+@app.route('/communities_edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_community(id):
+    form = CommunityForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        coms = db_sess.query(Communities).filter(Communities.id == id,
+                                                 Communities.creator == current_user
+                                                 ).first()
+        if coms:
+            form.name.data = coms.name
+            form.description.data = coms.description
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        coms = db_sess.query(Communities).filter(Communities.id == id,
+                                                 Communities.creator == current_user
+                                                 ).first()
+        if news:
+            coms.name = form.name.data
+            coms.description = form.description.data
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('create_community.html', title='Редактирование сообщества', form=form)
 
 
 if __name__ == '__main__':

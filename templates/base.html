@@ -11,21 +11,27 @@
     <title>{{title}}</title>
 </head>
 <body>
-<header>
-    <nav class="navbar navbar-light bg-light">
-        <a class="navbar-brand" href="/">Наше приложение</a>
-        {% if current_user.is_authenticated %}
-        <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
-        {% else %}
-        <p>
-            <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
-            <a class="btn btn-success" href="/login">Войти</a>
-        </p>
-        {% endif %}
-    </nav>
+<header class="p-3 bg-dark text-white">
+    <div class="container">
+        <div class="d-flex flex-wrap navbar navbar-dark bg-dark sticky-top py-0">
+            <a class="navbar-brand text-center fs-2 ps-5 fw-bold" href="/">CyberNews</a>
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="/communities" class="nav-link text-white fs-4">Сообщества</a></li>
+                <li><a href="/news" class="nav-link text-white pe-5 fs-4">Новости</a></li>
+            </ul>
+            {% if current_user.is_authenticated %}
+            <a class="navbar-brand fs-3 pe-5" href="/logout">Привет, {{ current_user.name }}</a>
+            {% else %}
+            <p class="m-2 px-5">
+                <a class="btn btn btn-warning me-2" href="/register" role="button">Зарегистрироваться</a>
+                <a class="btn btn-outline-light ml-2" href="/login" role="button">Войти</a>
+            </p>
+            {% endif %}
+        </div>
+    </div>
 </header>
 <!-- Begin page content -->
-<main role="main" class="container">
+<main role="main" class="container mt-5">
     {% block content %}{% endblock %}
 </main>
 </body>
