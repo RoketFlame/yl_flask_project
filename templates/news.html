@@ -12,7 +12,7 @@
         {{item.content}}
     </div>
     <div>
-        Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
+        Автор - {{item.user.name}}{{item.community.name}}, Дата написания - {{item.created_date}}
     </div>
     {% if current_user.is_authenticated and current_user == item.user %}
     <div>

@@ -1,2 +1,5 @@
 /templates/test.html
 /db/blogs.db
+/venv
+/.idea
+/__pycache__
