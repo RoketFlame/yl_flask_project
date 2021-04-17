@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>{{ title }}</h1>
-<div class="fs-4">Создатель - {{ com.creator.name }}</div>
+<div class="fs-4">Создатель - <a class="text-decoration-none text-body" href="/profile/id{{ com.creator.id }}">{{com.creator.name}}</a></div>
 <div class="fs-4">Дата создания - {{ com.created_date }}</div>
 <div class="fs-3">Описание</div>
 <div class="fs-5">{{ com.description }}</div>
@@ -16,7 +16,7 @@
         {{item.content}}
     </div>
     <div>
-        Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
+        Автор - {{item.user.name}}{{item.community.name}}, Дата написания - {{item.created_date}}
     </div>
     {% if current_user.is_authenticated and current_user == item.user or current_user == item.community.creator %}
     <div>
