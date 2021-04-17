@@ -214,6 +214,19 @@ def edit_community(id):
             abort(404)
     return render_template('create_community.html', title='Редактирование сообщества', form=form)
 
+@app.route('/news/my')
+@login_required
+def my_news():
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.user == current_user)
+    return render_template("news.html", news=news)
+
+@app.route('/communities/my')
+@login_required
+def my_communities():
+    db_sess = db_session.create_session()
+    coms = db_sess.query(Communities).filter(Communities.creator == current_user)
+    return render_template("communities.html", coms=coms)
 
 if __name__ == '__main__':
     db_sess = db_session.create_session()

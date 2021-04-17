@@ -52,6 +52,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\templates\base.html">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\templates\create_community.html">
           <value>
             <Attribute>

@@ -8,6 +8,10 @@
           rel="stylesheet"
           integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
           crossorigin="anonymous">
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+            crossorigin="anonymous"></script>
     <title>{{title}}</title>
 </head>
 <body>
@@ -20,7 +24,17 @@
                 <li><a href="/news" class="nav-link text-white pe-5 fs-4">Новости</a></li>
             </ul>
             {% if current_user.is_authenticated %}
-            <a class="navbar-brand fs-3 pe-5" href="/logout">Привет, {{ current_user.name }}</a>
+            <!--            <a class="navbar-brand fs-3 pe-5" href="/logout">Привет, {{ current_user.name }}</a>-->
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle fs-3 pe-5" href="#" id="navbarDarkDropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" style="color: #ced4da">
+                    {{ current_user.name }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                    <li><a class="dropdown-item" href="/news/my">Мои статьи</a></li>
+                    <li><a class="dropdown-item" href="/communities/my">Мои сообщества</a></li>
+                    <li><a class="dropdown-item" href="/logout">Выйти</a></li>
+                </ul>
+            </div>
             {% else %}
             <p class="m-2 px-5">
                 <a class="btn btn btn-warning me-2" href="/register" role="button">Зарегистрироваться</a>
@@ -29,7 +43,7 @@
             {% endif %}
         </div>
     </div>
-</header>
+</header class="p-3 bg-dark text-white">
 <!-- Begin page content -->
 <main role="main" class="container mt-5">
     {% block content %}{% endblock %}
