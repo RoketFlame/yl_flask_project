@@ -20,10 +20,10 @@
     </div>
     {% if current_user.is_authenticated and current_user == item.user or current_user == item.community.creator %}
     <div>
-        <a href="/news/edit/{{ item.id }}" class="btn btn-warning">
+        <a href="/news/edit/id{{ item.id }}" class="btn btn-warning">
             Изменить
         </a>
-        <a href="/news/delete/{{ item.id }}" class="btn btn-danger">
+        <a href="/news/delete/id{{ item.id }}" class="btn btn-danger">
             Удалить
         </a>
     </div>

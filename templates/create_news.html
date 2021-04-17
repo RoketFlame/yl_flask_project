@@ -12,7 +12,6 @@
         {{ error }}
     </p>
     {% endfor %}
-    </p>
     <p>
         {{ form.content.label }}<br>
         {{ form.content(class="form-control") }}<br>
@@ -21,7 +20,6 @@
         {{ error }}
     </p>
     {% endfor %}
-    </p>
     <p>{{ form.is_private() }} {{ form.is_private.label }}</p>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}

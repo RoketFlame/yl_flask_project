@@ -29,13 +29,16 @@ def load_user(user_id):
 
 @app.route("/")
 def index():
+    params = {}
     db_sess = db_session.create_session()
     if current_user.is_authenticated:
         news = db_sess.query(News).filter(
             (News.user == current_user) | (News.is_private != True))
     else:
         news = db_sess.query(News).filter(News.is_private != True)
-    return render_template("index.html", news=news, title='Записи в блоге')
+    params['news'] = news
+    params['title'] = 'Записи в блоге'
+    return render_template("index.html", **params)
 
 
 @app.route('/logout')
@@ -114,7 +117,7 @@ def add_news():
                            form=form)
 
 
-@app.route('/news/edit/<int:id>', methods=['GET', 'POST'])
+@app.route('/news/edit/id<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_news(id):
     form = NewsForm()
@@ -145,7 +148,7 @@ def edit_news(id):
     return render_template('create_news.html', title='Редактирование новости', form=form)
 
 
-@app.route('/news/delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/news/delete/id<int:id>', methods=['GET', 'POST'])
 @login_required
 def news_delete(id):
     db_sess = db_session.create_session()
@@ -171,7 +174,7 @@ def communities():
     return render_template('communities.html', coms=coms, title='Сообщества')
 
 
-@app.route('/community/<int:id>')
+@app.route('/community/id<int:id>')
 def community_(id):
     db_sess = db_session.create_session()
     com = db_sess.query(Community).filter(Community.id == id).first()
@@ -179,7 +182,7 @@ def community_(id):
     return render_template('community.html', com=com, title=com.name, news=news)
 
 
-@app.route('/community/<int:id>/news/create', methods=['GET', 'POST'])
+@app.route('/community/id<int:id>/news/create', methods=['GET', 'POST'])
 def create_news_by_community(id):
     form = NewsForm()
     if form.validate_on_submit():
@@ -188,6 +191,7 @@ def create_news_by_community(id):
         news.title = form.title.data
         news.content = form.content.data
         news.is_private = form.is_private.data
+        news.is_published_by_community = True
         com = db_sess.query(Community).filter(Community.id == id).first()
         com.news.append(news)
         db_sess.merge(com)
@@ -215,7 +219,7 @@ def create_community():
                            form=form)
 
 
-@app.route('/community/edit/<int:id>', methods=['GET', 'POST'])
+@app.route('/community/edit/id<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_community(id):
     form = CommunityForm()
@@ -244,7 +248,7 @@ def edit_community(id):
     return render_template('create_community.html', title='Редактирование сообщества', form=form)
 
 
-@app.route('/community/delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/community/delete/id<int:id>', methods=['GET', 'POST'])
 @login_required
 def delete_community(id):
     db_sess = db_session.create_session()
@@ -273,6 +277,7 @@ def my_communities():
     db_sess = db_session.create_session()
     coms = db_sess.query(Community).filter(Community.creator == current_user)
     return render_template("communities.html", coms=coms, title='Мои сообщества')
+
 
 
 @app.route('/profile/edit', methods=['GET', 'POST'])

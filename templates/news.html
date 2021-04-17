@@ -14,12 +14,12 @@
     <div>
         Автор - {{item.user.name}}{{item.community.name}}, Дата написания - {{item.created_date}}
     </div>
-    {% if current_user.is_authenticated and current_user == item.user %}
+    {% if current_user.is_authenticated and current_user == item.user or item.community.creator == current_user %}
     <div>
-        <a href="/news/edit/{{ item.id }}" class="btn btn-warning">
+        <a href="/news/edit/id{{ item.id }}" class="btn btn-warning">
             Изменить
         </a>
-        <a href="/news/delete/{{ item.id }}" class="btn btn-danger">
+        <a href="/news/delete/id{{ item.id }}" class="btn btn-danger">
             Удалить
         </a>
     </div>

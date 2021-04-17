@@ -7,7 +7,7 @@
 <h1>{{ title }}</h1>
 {% for item in coms%}
 <div class="row gap-2 p-3 my-2 border rounded">
-    <h2><a class="text-body" href="/community/{{ item.id }}">{{item.name}}</a></h2>
+    <h2><a class="text-body text-decoration-none" href="/community/id{{ item.id }}">{{item.name}}</a></h2>
     <div>
         {{item.description[:40] + '...'}}
     </div>
@@ -16,10 +16,10 @@
     </div>
     {% if current_user.is_authenticated and current_user == item.creator %}
     <div>
-        <a href="/community/edit/{{ item.id }}" class="btn btn-warning">
+        <a href="/community/edit/id{{ item.id }}" class="btn btn-warning">
             Изменить
         </a>
-        <a href="/community/delete/{{ item.id }}" class="btn btn-danger">
+        <a href="/community/delete/id{{ item.id }}" class="btn btn-danger">
             Удалить
         </a>
     </div>
