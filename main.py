@@ -149,7 +149,11 @@ def edit_news(id):
 @login_required
 def news_delete(id):
     db_sess = db_session.create_session()
-    author = db_sess.query(News).filter(News.id == id).first().community.creator
+    news = db_sess.query(News).filter(News.id == id).first()
+    if news.is_published_by_community:
+        author = db_sess.query(News).filter(News.id == id).first().community.creator
+    else:
+        author = None
     news = db_sess.query(News).filter((News.user == current_user) |
                                       (author == current_user)).filter(News.id == id).first()
     if news:
