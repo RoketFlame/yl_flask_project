@@ -12,7 +12,7 @@
         {{item.description[:40] + '...'}}
     </div>
     <div>
-        Создатель - {{item.creator.name}}, Дата написания - {{item.created_date}}
+        Создатель - <a class="text-decoration-none text-body" href="/profile/id{{ item.creator.id }}">{{item.creator.name}}</a>, Дата создания - {{item.created_date}}
     </div>
     {% if current_user.is_authenticated and current_user == item.creator %}
     <div>

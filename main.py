@@ -1,7 +1,6 @@
 import json
 
 from werkzeug.exceptions import abort
-
 from data import db_session
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -164,7 +163,7 @@ def news_delete(id):
         db_sess.commit()
     else:
         abort(404)
-    return redirect('/')
+    return redirect('/news')
 
 
 @app.route('/communities')
@@ -196,7 +195,7 @@ def create_news_by_community(id):
         com.news.append(news)
         db_sess.merge(com)
         db_sess.commit()
-        return redirect(f'/../../community/{id}')
+        return redirect(f'/../../community/id{id}')
     return render_template('create_news.html', title='Добавление новости',
                            form=form)
 
@@ -279,7 +278,6 @@ def my_communities():
     return render_template("communities.html", coms=coms, title='Мои сообщества')
 
 
-
 @app.route('/profile/edit', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
@@ -303,8 +301,14 @@ def edit_profile():
                                message="Неправильный пароль")
     return render_template('edit_profile.html', title='Редактирование профиля', form=form)
 
+@app.route('/profile/id<int:id>')
+def profile(id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == id).first()
+    news = user.news
+    coms = user.communities
+    return render_template('profile.html', news=news, coms=coms, user=user)
+
 
 if __name__ == '__main__':
-    db_sess = db_session.create_session()
-    db_sess.commit()
     app.run(port=8080, host='127.0.0.1')

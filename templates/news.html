@@ -12,7 +12,11 @@
         {{item.content}}
     </div>
     <div>
-        Автор - {{item.user.name}}{{item.community.name}}, Дата написания - {{item.created_date}}
+        {% if item.is_published_by_community %}
+        Автор - <a class="text-decoration-none text-body" href="/community/id{{ item.community.id }}">{{item.community.name}}</a>, Дата написания - {{item.created_date}}
+        {% else %}
+        Автор - <a class="text-decoration-none text-body" href="/profile/id{{ item.user.id }}">{{item.user.name}}</a>, Дата написания - {{item.created_date}}
+        {% endif %}
     </div>
     {% if current_user.is_authenticated and current_user == item.user or item.community.creator == current_user %}
     <div>
