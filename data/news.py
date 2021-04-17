@@ -25,7 +25,7 @@ class News(SqlAlchemyBase):
                                      default=None, nullable=True)
 
     user = orm.relation('User')
-    community = orm.relation('Communities')
+    community = orm.relation('Community')
     categories = orm.relation("Category",
                               secondary="association",
                               backref="news")

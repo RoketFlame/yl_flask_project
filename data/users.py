@@ -20,7 +20,7 @@ class User(UserMixin, SqlAlchemyBase):
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
     news = orm.relation("News", back_populates='user')
-    communities = orm.relation('Communities', back_populates='creator')
+    communities = orm.relation('Community', back_populates='creator')
 
     def __repr__(self):
         return f'{__class__.__name__} {self.id} {self.name} {self.email}'

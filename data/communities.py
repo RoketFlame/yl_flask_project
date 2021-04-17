@@ -5,7 +5,7 @@ from sqlalchemy import orm
 from .db_session import SqlAlchemyBase
 
 
-class Communities(SqlAlchemyBase):
+class Community(SqlAlchemyBase):
     __tablename__ = 'communities'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
@@ -18,3 +18,4 @@ class Communities(SqlAlchemyBase):
     creator_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
     creator = orm.relation('User')
+    news = orm.relation("News", back_populates='community')
