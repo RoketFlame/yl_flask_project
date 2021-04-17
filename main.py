@@ -12,8 +12,7 @@ from data.communities import Communities
 
 from forms.community import CommunityForm
 from forms.news import NewsForm
-from forms.user import RegisterForm
-from forms.loginform import LoginForm
+from forms.user import RegisterForm, LoginForm, EditForm
 
 db_session.global_init("db/blogs.db")
 app = Flask(__name__)
@@ -36,7 +35,7 @@ def index():
             (News.user == current_user) | (News.is_private != True))
     else:
         news = db_sess.query(News).filter(News.is_private != True)
-    return render_template("index.html", news=news)
+    return render_template("index.html", news=news, title='Записи в блоге')
 
 
 @app.route("/news")
@@ -47,17 +46,17 @@ def news():
             (News.user == current_user) | (News.is_private != True))
     else:
         news = db_sess.query(News).filter(News.is_private != True)
-    return render_template("news.html", news=news)
+    return render_template("news.html", news=news, title='Записи в блоге')
 
 
 @app.route('/communities')
 def communities():
     db_sess = db_session.create_session()
     coms = db_sess.query(Communities)
-    return render_template('communities.html', coms=coms)
+    return render_template('communities.html', coms=coms, title='Сообщества')
 
 
-@app.route('/news_create', methods=['GET', 'POST'])
+@app.route('/news/create', methods=['GET', 'POST'])
 @login_required
 def add_news():
     form = NewsForm()
@@ -122,7 +121,7 @@ def reqister():
     return render_template('register.html', title='Регистрация', form=form)
 
 
-@app.route('/news_edit/<int:id>', methods=['GET', 'POST'])
+@app.route('/news/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_news(id):
     form = NewsForm()
@@ -153,7 +152,7 @@ def edit_news(id):
     return render_template('create_news.html', title='Редактирование новости', form=form)
 
 
-@app.route('/news_delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/news/delete/<int:id>', methods=['GET', 'POST'])
 @login_required
 def news_delete(id):
     db_sess = db_session.create_session()
@@ -168,7 +167,7 @@ def news_delete(id):
     return redirect('/')
 
 
-@app.route('/communities_create', methods=['GET', 'POST'])
+@app.route('/community/create', methods=['GET', 'POST'])
 @login_required
 def create_community():
     form = CommunityForm()
@@ -186,7 +185,7 @@ def create_community():
                            form=form)
 
 
-@app.route('/communities_edit/<int:id>', methods=['GET', 'POST'])
+@app.route('/community/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_community(id):
     form = CommunityForm()
@@ -214,19 +213,61 @@ def edit_community(id):
             abort(404)
     return render_template('create_community.html', title='Редактирование сообщества', form=form)
 
+
+@app.route('/community/delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def delete_community(id):
+    db_sess = db_session.create_session()
+    com = db_sess.query(Communities).filter(Communities.id == id,
+                                            Communities.creator == current_user
+                                            ).first()
+    if com:
+        db_sess.delete(com)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/communities')
+
+
 @app.route('/news/my')
 @login_required
 def my_news():
     db_sess = db_session.create_session()
     news = db_sess.query(News).filter(News.user == current_user)
-    return render_template("news.html", news=news)
+    return render_template("news.html", news=news, title='Мои статьи')
+
 
 @app.route('/communities/my')
 @login_required
 def my_communities():
     db_sess = db_session.create_session()
     coms = db_sess.query(Communities).filter(Communities.creator == current_user)
-    return render_template("communities.html", coms=coms)
+    return render_template("communities.html", coms=coms, title='Мои сообщества')
+
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditForm()
+    if request.method == "GET":
+        form.email.data = current_user.email
+        form.name.data = current_user.name
+        form.about.data = current_user.about
+    if form.validate_on_submit():
+        if current_user.check_password(form.old_password.data) or form.new_password.data == '':
+            db_sess = db_session.create_session()
+            if form.new_password.data:
+                current_user.set_password(form.new_password.data)
+            current_user.name = form.name.data
+            current_user.email = form.email.data
+            current_user.about = form.about.data
+            db_sess.merge(current_user)
+            db_sess.commit()
+            return redirect('/')
+        return render_template('edit_profile.html', title='Редактирование профиля', form=form,
+                               message="Неправильный пароль")
+    return render_template('edit_profile.html', title='Редактирование профиля', form=form)
+
 
 if __name__ == '__main__':
     db_sess = db_session.create_session()
