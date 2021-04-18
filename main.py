@@ -2,7 +2,7 @@ import json
 
 from werkzeug.exceptions import abort
 from data import db_session
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, request, url_for, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from data.news import News
@@ -18,6 +18,9 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = 'login'
+login_manager.login_message = "Авторизуйтесь для доступа к закрытым страницам"
+login_manager.login_message_category = "success"
 
 
 @login_manager.user_loader
@@ -44,21 +47,22 @@ def index():
 @login_required
 def logout():
     logout_user()
-    return redirect("/")
+    return redirect(url_for('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('my_profile'))
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            return redirect("/")
-        return render_template('login.html',
-                               message="Неправильный логин или пароль",
-                               form=form)
+            return redirect(request.args.get("next") or url_for("my_profile"))
+        flash("Неправильный логин или пароль")
+        return render_template('login.html', form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
 
@@ -67,14 +71,12 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Пароли не совпадают")
+            flash('Пароли не совпадают')
+            return render_template('register.html', title='Регистрация', form=form)
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Такой пользователь уже есть")
+            flash("Такой пользователь уже есть")
+            return render_template('register.html', title='Регистрация', form=form)
         user = User(
             name=form.name.data,
             email=form.email.data,
@@ -111,7 +113,7 @@ def add_news():
         current_user.news.append(news)
         db_sess.merge(current_user)
         db_sess.commit()
-        return redirect('/')
+        return redirect(url_for('news'))
     return render_template('create_news.html', title='Добавление новости',
                            form=form)
 
@@ -122,10 +124,8 @@ def edit_news(id):
     form = NewsForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
-        news = db_sess.query(News).filter(News.id == id,
-                                          News.user == current_user
-                                          ).first()
-        if news:
+        news = db_sess.query(News).filter(News.id == id).first()
+        if news.user == current_user or news.community.creator == current_user and news:
             form.title.data = news.title
             form.content.data = news.content
             form.is_private.data = news.is_private
@@ -133,15 +133,13 @@ def edit_news(id):
             abort(404)
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        news = db_sess.query(News).filter(News.id == id,
-                                          News.user == current_user
-                                          ).first()
-        if news:
+        news = db_sess.query(News).filter(News.id == id).first()
+        if news.user == current_user or news.community.creator == current_user and news:
             news.title = form.title.data
             news.content = form.content.data
             news.is_private = form.is_private.data
             db_sess.commit()
-            return redirect('/')
+            return redirect(url_for('news', id=id))
         else:
             abort(404)
     return render_template('create_news.html', title='Редактирование новости', form=form)
@@ -195,7 +193,7 @@ def create_news_by_community(id):
         com.news.append(news)
         db_sess.merge(com)
         db_sess.commit()
-        return redirect(f'/../../community/id{id}')
+        return redirect(url_for('community', id=id))
     return render_template('create_news.html', title='Добавление новости',
                            form=form)
 
@@ -213,7 +211,7 @@ def create_community():
         current_user.communities.append(com)
         db_sess.merge(current_user)
         db_sess.commit()
-        return redirect('/')
+        return redirect(url_for('community', id=com.id))
     return render_template('create_community.html', title='Добавление сообщества',
                            form=form)
 
@@ -241,7 +239,7 @@ def edit_community(id):
             coms.name = form.name.data
             coms.description = form.description.data
             db_sess.commit()
-            return redirect('/communities')
+            return redirect(url_for('community', id=id))
         else:
             abort(404)
     return render_template('create_community.html', title='Редактирование сообщества', form=form)
@@ -259,7 +257,7 @@ def delete_community(id):
         db_sess.commit()
     else:
         abort(404)
-    return redirect('/communities')
+    return redirect(url_for('communities'))
 
 
 @app.route('/news/my')
@@ -296,10 +294,19 @@ def edit_profile():
             current_user.about = form.about.data
             db_sess.merge(current_user)
             db_sess.commit()
-            return redirect('/')
-        return render_template('edit_profile.html', title='Редактирование профиля', form=form,
-                               message="Неправильный пароль")
+            return redirect(url_for('my_profile'))
+        flash('Неправильный пароль')
+        return render_template('edit_profile.html', title='Редактирование профиля', form=form)
     return render_template('edit_profile.html', title='Редактирование профиля', form=form)
+
+
+@app.route('/profile')
+def my_profile():
+    user = current_user
+    news = user.news
+    coms = user.communities
+    return render_template('profile.html', news=news, coms=coms, user=user)
+
 
 @app.route('/profile/id<int:id>')
 def profile(id):

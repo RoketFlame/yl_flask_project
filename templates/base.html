@@ -47,6 +47,11 @@
     </div>
 </header>
 <!-- Begin page content -->
+{% for msg in get_flashed_messages() %}
+<div class="alert alert-danger" role="alert">
+    {{ msg }}
+</div>
+{% endfor %}
 <main role="main" class="container mt-5">
     {% block content %}{% endblock %}
 </main>
