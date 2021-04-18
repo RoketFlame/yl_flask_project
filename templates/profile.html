@@ -3,8 +3,13 @@
 {% block content %}
 <h1>{{ title }}</h1>
 <div class="fs-3 fw-bold">{{ user.name }}</div>
+<div class=""><img src="{{ url_for('user_avatar', id=user.id) }}" class="rounded-circle img-thumbnail" style="object-fit: cover;
+     		width:200px; height: 200px"></div>
 <div class="fs-4">Зарегистрирован {{ user.created_date }}</div>
 <div class="fs-5">{{ user.about }}</div>
+<a href="/profile/edit" class="btn btn-warning">
+    Редактировать профиль
+</a>
 <div class="fs-4">Статьи {{ user.name }}</div>
 {% if news %}
     {% for item in news%}

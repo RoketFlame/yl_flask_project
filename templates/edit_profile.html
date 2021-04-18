@@ -2,8 +2,19 @@
 
 {% block content %}
 <h1>{{ title }}</h1>
-<form action="" method="post">
+<div class=""><img src="{{ url_for('user_avatar', id=current_user.id) }}"
+                   class="rounded-circle img-thumbnail" style="object-fit: cover;
+     		width:200px; height: 200px"></div>
+<form action="" method="POST" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
+    <p>
+        {{ form.avatar.label }}<br>
+        {{ form.avatar() }}<br>
+        {% for error in form.email.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
     <p>
         {{ form.email.label }}<br>
         {{ form.email(class="form-control", type="email") }}<br>

@@ -1,8 +1,11 @@
 import json
+import os
 
 from werkzeug.exceptions import abort
+from werkzeug.utils import secure_filename
+
 from data import db_session
-from flask import Flask, render_template, redirect, request, url_for, flash
+from flask import Flask, render_template, redirect, request, url_for, flash, make_response
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from data.news import News
@@ -82,6 +85,7 @@ def register():
             email=form.email.data,
             about=form.about.data
         )
+        user.avatar = open('static/images/default_avatar.png', 'rb').read()
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
@@ -161,7 +165,7 @@ def news_delete(id):
         db_sess.commit()
     else:
         abort(404)
-    return redirect('/news')
+    return redirect(url_for('news'))
 
 
 @app.route('/communities')
@@ -289,6 +293,8 @@ def edit_profile():
             db_sess = db_session.create_session()
             if form.new_password.data:
                 current_user.set_password(form.new_password.data)
+            f = form.avatar.data
+            current_user.avatar = f.read()
             current_user.name = form.name.data
             current_user.email = form.email.data
             current_user.about = form.about.data
@@ -301,6 +307,7 @@ def edit_profile():
 
 
 @app.route('/profile')
+@login_required
 def my_profile():
     user = current_user
     news = user.news
@@ -315,6 +322,17 @@ def profile(id):
     news = user.news
     coms = user.communities
     return render_template('profile.html', news=news, coms=coms, user=user)
+
+
+@app.route('/user_avatar/id<int:id>')
+@login_required
+def user_avatar(id):
+    db_sess = db_session.create_session()
+    img = db_sess.query(User).filter(User.id == id).first().avatar
+    if not img:
+        return ""
+    h = make_response(img)
+    return h
 
 
 if __name__ == '__main__':
