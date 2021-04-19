@@ -217,7 +217,7 @@ def create_community():
         current_user.communities.append(com)
         db_sess.merge(current_user)
         db_sess.commit()
-        return redirect(url_for('community', id=com.id))
+        return redirect(url_for('my_communities'))
     return render_template('create_community.html', title='Добавление сообщества',
                            form=form)
 
@@ -350,6 +350,13 @@ def subscribe_to_community(id):
         flash('Вы отслеживаете это сообщество')
     except:
         flash('Что-то пошло не так')
+
+
+@app.route('/news/id<int:id>')
+def news_item(id):
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.id == id).first()
+    return render_template('news_item.html', news=news, title=news.title)
 
 
 if __name__ == '__main__':
