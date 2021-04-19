@@ -65,7 +65,6 @@ def login():
             login_user(user, remember=form.remember_me.data)
             return redirect(request.args.get("next") or url_for("my_profile"))
         flash("Неправильный логин или пароль")
-        return render_template('login.html', form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
 
@@ -129,7 +128,11 @@ def edit_news(id):
     if request.method == "GET":
         db_sess = db_session.create_session()
         news = db_sess.query(News).filter(News.id == id).first()
-        if news.user == current_user or news.community.creator == current_user and news:
+        if news.is_published_by_community:
+            author = news.community.creator
+        else:
+            author = news.user
+        if author == current_user and news:
             form.title.data = news.title
             form.content.data = news.content
             form.is_private.data = news.is_private
@@ -155,11 +158,10 @@ def news_delete(id):
     db_sess = db_session.create_session()
     news = db_sess.query(News).filter(News.id == id).first()
     if news.is_published_by_community:
-        author = db_sess.query(News).filter(News.id == id).first().community.creator
+        author = news.community.creator
     else:
-        author = None
-    news = db_sess.query(News).filter((News.user == current_user) |
-                                      (author == current_user)).filter(News.id == id).first()
+        author = news.user
+    news = db_sess.query(News).filter(current_user == author).filter(News.id == id).first()
     if news:
         db_sess.delete(news)
         db_sess.commit()
@@ -176,7 +178,7 @@ def communities():
 
 
 @app.route('/community/id<int:id>')
-def community_(id):
+def community(id):
     db_sess = db_session.create_session()
     com = db_sess.query(Community).filter(Community.id == id).first()
     news = db_sess.query(News).filter(News.community_id == com.id)
@@ -333,6 +335,21 @@ def user_avatar(id):
         return ""
     h = make_response(img)
     return h
+
+@app.route('/communities/subscribe/id<int:id>')
+@login_required
+def subscribe_to_community(id):
+    try:
+        db_sess = db_session.create_session()
+        subscribe = SubscribeUserToCommunity()
+        subscribe.id_to_community = id
+        subscribe.id_by_user = current_user.id
+        current_user.community_subscribes.append(subscribe)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        flash('Вы отслеживаете это сообщество')
+    except:
+        flash('Что-то пошло не так')
 
 
 if __name__ == '__main__':

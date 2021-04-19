@@ -14,8 +14,11 @@ class Community(SqlAlchemyBase):
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
+
     is_private = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
     creator_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
+
     creator = orm.relation('User')
     news = orm.relation("News", back_populates='community')
+

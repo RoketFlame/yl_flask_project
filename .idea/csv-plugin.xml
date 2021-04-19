@@ -31,6 +31,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\subscribes_user_to_user.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\users.py">
           <value>
             <Attribute>

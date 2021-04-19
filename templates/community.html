@@ -8,6 +8,11 @@
 <div class="fs-5">{{ com.description }}</div>
 {% if current_user == com.creator %}
 <a href="{{ request.path }}/news/create" class="btn btn-secondary">Добавить новость</a>
+{% else %}
+{% if current_user.is_subscribe_to_community(com.id) %}
+<a class="btn btn-primary" href="{{ url_for('subscribe_to_community') }}" role="button">Подписаться</a>
+{% else %}
+<a class="btn btn-primary disabled" href="{{ url_for('subscribe_to_community') }}" role="button" aria-disabled="true" tabindex="-1">Вы уже подписаны</a>
 {% endif %}
 {% for item in news%}
 <div class="row gap-2 p-3 my-2 border rounded">
