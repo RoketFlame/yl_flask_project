@@ -19,6 +19,14 @@ class Community(SqlAlchemyBase):
     creator_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
 
+    # association_table = sqlalchemy.Table(
+    #     'subscribe_user_to_community',
+    #     SqlAlchemyBase.metadata,
+    #     sqlalchemy.Column('id_by_user', sqlalchemy.Integer,
+    #                       sqlalchemy.ForeignKey('users.id')),
+    #     sqlalchemy.Column('id_to_community', sqlalchemy.Integer,
+    #                       sqlalchemy.ForeignKey('communities.id')))
+
     creator = orm.relation('User')
     news = orm.relation("News", back_populates='community')
 

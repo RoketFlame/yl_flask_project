@@ -9,6 +9,7 @@ from flask import Flask, render_template, redirect, request, url_for, flash, mak
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from data.news import News
+from data.subscribe_user_to_community import SubscribesUserToCommunities
 from data.users import User
 from data.communities import Community
 
@@ -120,6 +121,13 @@ def add_news():
     return render_template('create_news.html', title='Добавление новости',
                            form=form)
 
+@app.route('/news/id<int:id>')
+@login_required
+def one_news(id):
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.id == id).first()
+    return render_template('one_news.html', news=news, title=news.title)
+
 
 @app.route('/news/edit/id<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -173,7 +181,7 @@ def news_delete(id):
 @app.route('/communities')
 def communities():
     db_sess = db_session.create_session()
-    coms = db_sess.query(Community)
+    coms = db_sess.query(Community).all()
     return render_template('communities.html', coms=coms, title='Сообщества')
 
 
@@ -181,8 +189,9 @@ def communities():
 def community(id):
     db_sess = db_session.create_session()
     com = db_sess.query(Community).filter(Community.id == id).first()
-    news = db_sess.query(News).filter(News.community_id == com.id)
-    return render_template('community.html', com=com, title=com.name, news=news)
+    subscribe_to_community = current_user.check_subscribe_to_community(id)
+    return render_template('community.html', com=com, title=com.name, news=com.news,
+                           subscribe_to_community=subscribe_to_community)
 
 
 @app.route('/community/id<int:id>/news/create', methods=['GET', 'POST'])
@@ -217,7 +226,7 @@ def create_community():
         current_user.communities.append(com)
         db_sess.merge(current_user)
         db_sess.commit()
-        return redirect(url_for('community', id=com.id))
+        return redirect(url_for('my_communities'))
     return render_template('create_community.html', title='Добавление сообщества',
                            form=form)
 
@@ -336,20 +345,32 @@ def user_avatar(id):
     h = make_response(img)
     return h
 
-@app.route('/communities/subscribe/id<int:id>')
+
+@app.route('/community/subscribe/id<int:id>')
 @login_required
 def subscribe_to_community(id):
-    try:
-        db_sess = db_session.create_session()
-        subscribe = SubscribeUserToCommunity()
-        subscribe.id_to_community = id
-        subscribe.id_by_user = current_user.id
-        current_user.community_subscribes.append(subscribe)
-        db_sess.merge(current_user)
-        db_sess.commit()
-        flash('Вы отслеживаете это сообщество')
-    except:
-        flash('Что-то пошло не так')
+    db_sess = db_session.create_session()
+    sub = SubscribesUserToCommunities()
+    sub.community_id = id
+    sub.user_id = current_user.id
+    current_user.subscribes_to_communities.append(sub)
+    db_sess.merge(current_user)
+    db_sess.commit()
+    flash('Вы успешно подписались')
+    return redirect(url_for('community', id=id))
+
+
+@app.route('/community/unsubscribe/id<int:id>')
+@login_required
+def unsubscribe_to_community(id):
+    db_sess = db_session.create_session()
+    sub = db_sess.query(SubscribesUserToCommunities).filter(
+        current_user == SubscribesUserToCommunities.user,
+        SubscribesUserToCommunities.community_id == id).first()
+    db_sess.delete(sub)
+    db_sess.commit()
+    flash('Вы успешно отписались')
+    return redirect(url_for('community', id=id))
 
 
 if __name__ == '__main__':
