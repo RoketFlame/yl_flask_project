@@ -189,8 +189,9 @@ def communities():
 def community(id):
     db_sess = db_session.create_session()
     com = db_sess.query(Community).filter(Community.id == id).first()
-    com_id = com.id
-    subscribe_to_community = com_id in [com.id for com in current_user.subscribes_user_to_community]
+    com = com.make_json()
+    subscribe_to_community = com['id'] in [com.id for com in current_user.subscribes_community]
+    db_sess.close()
     return render_template('community.html', com=com,
                            subscribe_to_community=subscribe_to_community)
 
@@ -351,6 +352,10 @@ def user_avatar(id):
 @app.route('/community/subscribe/id<int:id>')
 @login_required
 def subscribe_to_community(id):
+    db_sess = db_session.create_session()
+    com = db_sess.query(Community).filter(Community.id == id).first()
+    com.subscribers.append(current_user)
+    db_sess.commit()
     flash('Вы успешно подписались')
     return redirect(url_for('community', id=id))
 
@@ -360,8 +365,7 @@ def subscribe_to_community(id):
 def unsubscribe_to_community(id):
     db_sess = db_session.create_session()
     com = db_sess.merge(db_sess.query(Community).filter(Community.id == id).first())
-    current_user.subscribes_user_to_community.remove(com)
-    db_sess.merge(current_user)
+    com.subscribers.append(current_user)
     db_sess.commit()
     flash('Вы успешно отписались')
     return redirect(url_for('community', id=id))

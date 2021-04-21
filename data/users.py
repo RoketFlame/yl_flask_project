@@ -24,7 +24,7 @@ class User(UserMixin, SqlAlchemyBase):
 
     avatar = sqlalchemy.Column(sqlalchemy.BLOB)
 
-    subscribes_user_to_community = orm.relationship('Community', secondary='subscribes_user_to_community', backref="user")
+    subscribes_community = orm.relationship('Community', secondary='subscribes_user_to_community', backref=orm.backref('subscribers', lazy='dynamic'))
     news = orm.relation("News", back_populates='user')
     communities = orm.relation('Community', back_populates='creator')
 
@@ -37,3 +37,9 @@ class User(UserMixin, SqlAlchemyBase):
 
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
+
+    def make_json(self):
+        result = {}
+        result['id'] = self.id
+        result['name'] = self.name
+        return result

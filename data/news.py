@@ -28,3 +28,11 @@ class News(SqlAlchemyBase):
     categories = orm.relation("Category",
                               secondary="association",
                               backref="news")
+
+    def make_json(self):
+        result = {}
+        result['title'] = self.title
+        result['content'] = self.content
+        result['created_date'] = self.created_date
+        result['user'] = self.user.make_json()
+        return result

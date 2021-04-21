@@ -20,12 +20,18 @@ class Community(SqlAlchemyBase):
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
-
-    is_private = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
     creator_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
 
-    subscribers = orm.relation('User', secondary='subscribes_user_to_community', backref='community')
     creator = orm.relation('User')
     news = orm.relation("News", back_populates='community')
 
+    def make_json(self):
+        result = {}
+        result['id'] = self.id
+        result['creator'] = self.creator.make_json()
+        result['name'] = self.name
+        result['description'] = self.description
+        result['created_date'] = self.created_date
+        result['news'] = [news.make_json() for news in self.news]
+        return result
