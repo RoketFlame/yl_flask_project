@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from .db_session import SqlAlchemyBase
 from sqlalchemy import orm
+from sqlalchemy.orm import backref
+
 
 
 class User(UserMixin, SqlAlchemyBase):
@@ -22,9 +24,9 @@ class User(UserMixin, SqlAlchemyBase):
 
     avatar = sqlalchemy.Column(sqlalchemy.BLOB)
 
+    subscribes_user_to_community = orm.relation('Community', secondary='subscribes_user_to_community', backref="user")
     news = orm.relation("News", back_populates='user')
     communities = orm.relation('Community', back_populates='creator')
-    subscribes_to_communities = orm.relation('SubscribesUserToCommunities', back_populates='user')
 
 
     def __repr__(self):
@@ -35,6 +37,3 @@ class User(UserMixin, SqlAlchemyBase):
 
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
-
-    def check_subscribe_to_community(self, id):
-        return id in [sub.community.id for sub in self.subscribes_to_communities]

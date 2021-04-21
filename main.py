@@ -9,7 +9,6 @@ from flask import Flask, render_template, redirect, request, url_for, flash, mak
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from data.news import News
-from data.subscribe_user_to_community import SubscribesUserToCommunities
 from data.users import User
 from data.communities import Community
 
@@ -189,8 +188,9 @@ def communities():
 def community(id):
     db_sess = db_session.create_session()
     com = db_sess.query(Community).filter(Community.id == id).first()
-    subscribe_to_community = current_user.check_subscribe_to_community(id)
-    return render_template('community.html', com=com, title=com.name, news=com.news,
+    com_id = com.id
+    subscribe_to_community = com_id in [com.id for com in current_user.subscribes_user_to_community]
+    return render_template('community.html', com=com,
                            subscribe_to_community=subscribe_to_community)
 
 
@@ -350,10 +350,8 @@ def user_avatar(id):
 @login_required
 def subscribe_to_community(id):
     db_sess = db_session.create_session()
-    sub = SubscribesUserToCommunities()
-    sub.community_id = id
-    sub.user_id = current_user.id
-    current_user.subscribes_to_communities.append(sub)
+    com = db_sess.query(Community).filter(Community.id == id).first()
+    current_user.subscribes_user_to_community.append(com)
     db_sess.merge(current_user)
     db_sess.commit()
     flash('Вы успешно подписались')
@@ -364,21 +362,12 @@ def subscribe_to_community(id):
 @login_required
 def unsubscribe_to_community(id):
     db_sess = db_session.create_session()
-    sub = db_sess.query(SubscribesUserToCommunities).filter(
-        current_user == SubscribesUserToCommunities.user,
-        SubscribesUserToCommunities.community_id == id).first()
-    db_sess.delete(sub)
+    com = db_sess.merge(db_sess.query(Community).filter(Community.id == id).first())
+    current_user.subscribes_user_to_community.remove(com)
+    db_sess.merge(current_user)
     db_sess.commit()
     flash('Вы успешно отписались')
     return redirect(url_for('community', id=id))
 
-
-@app.route('/news/id<int:id>')
-def news_item(id):
-    db_sess = db_session.create_session()
-    news = db_sess.query(News).filter(News.id == id).first()
-    return render_template('news_item.html', news=news, title=news.title)
-
-
 if __name__ == '__main__':
-    app.run(port=5000, host='127.0.0.1')
+    app.run(port=8000, host='127.0.0.1')

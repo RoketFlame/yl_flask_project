@@ -4,6 +4,12 @@ import sqlalchemy
 from sqlalchemy import orm
 from .db_session import SqlAlchemyBase
 
+subscribes_to_community = sqlalchemy.Table('subscribes_user_to_community', SqlAlchemyBase.metadata,
+                                           sqlalchemy.Column('user', sqlalchemy.Integer,
+                                                             sqlalchemy.ForeignKey('users.id')),
+                                           sqlalchemy.Column('community', sqlalchemy.Integer,
+                                                             sqlalchemy.ForeignKey('communities.id'))
+                                           )
 
 class Community(SqlAlchemyBase):
     __tablename__ = 'communities'
@@ -19,14 +25,7 @@ class Community(SqlAlchemyBase):
     creator_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
 
-    # association_table = sqlalchemy.Table(
-    #     'subscribe_user_to_community',
-    #     SqlAlchemyBase.metadata,
-    #     sqlalchemy.Column('id_by_user', sqlalchemy.Integer,
-    #                       sqlalchemy.ForeignKey('users.id')),
-    #     sqlalchemy.Column('id_to_community', sqlalchemy.Integer,
-    #                       sqlalchemy.ForeignKey('communities.id')))
-
+    subscribers = orm.relation('User', secondary='subscribes_user_to_community', backref='community')
     creator = orm.relation('User')
     news = orm.relation("News", back_populates='community')
 
