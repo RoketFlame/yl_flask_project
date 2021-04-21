@@ -1,5 +1,6 @@
 import json
 import os
+import copy
 
 from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
@@ -343,17 +344,13 @@ def user_avatar(id):
     if not img:
         return ""
     h = make_response(img)
+    h.headers['Content-Type'] = 'image/png'
     return h
 
 
 @app.route('/community/subscribe/id<int:id>')
 @login_required
 def subscribe_to_community(id):
-    db_sess = db_session.create_session()
-    com = db_sess.query(Community).filter(Community.id == id).first()
-    current_user.subscribes_user_to_community.append(com)
-    db_sess.merge(current_user)
-    db_sess.commit()
     flash('Вы успешно подписались')
     return redirect(url_for('community', id=id))
 
