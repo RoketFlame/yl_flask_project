@@ -349,12 +349,15 @@ def user_avatar(id):
     return h
 
 
-@app.route('/community/subscribe/id<int:id>')
+@app.route('/community/subscribe/id<int:id>', methods=['GET', 'POST'])
 @login_required
 def subscribe_to_community(id):
     db_sess = db_session.create_session()
     com = db_sess.query(Community).filter(Community.id == id).first()
-    com.subscribers.append(current_user)
+    user = db_sess.query(User).filter(User.id == current_user.id).first()
+    db_sess.delete(user)
+    com.subscribers.append(user)
+    db_sess.add(user)
     db_sess.commit()
     flash('Вы успешно подписались')
     return redirect(url_for('community', id=id))
@@ -364,8 +367,10 @@ def subscribe_to_community(id):
 @login_required
 def unsubscribe_to_community(id):
     db_sess = db_session.create_session()
-    com = db_sess.merge(db_sess.query(Community).filter(Community.id == id).first())
-    com.subscribers.append(current_user)
+    com = db_sess.query(Community).filter(Community.id == id).first()
+    user = db_sess.query(User).filter(User.id == current_user.id).first()
+    com.subscribers.remove(user)
+    db_sess.add(user)
     db_sess.commit()
     flash('Вы успешно отписались')
     return redirect(url_for('community', id=id))
