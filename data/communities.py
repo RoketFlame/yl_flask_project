@@ -2,6 +2,8 @@ import datetime
 import sqlalchemy
 
 from sqlalchemy import orm
+
+from functions import make_creation_date
 from .db_session import SqlAlchemyBase
 
 subscribes_to_community = sqlalchemy.Table('subscribes_user_to_community', SqlAlchemyBase.metadata,
@@ -18,8 +20,8 @@ class Community(SqlAlchemyBase):
                            primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    created_date = sqlalchemy.Column(sqlalchemy.DateTime,
-                                     default=datetime.datetime.now)
+    created_date = sqlalchemy.Column(sqlalchemy.String,
+                                     default=make_creation_date())
     creator_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
 

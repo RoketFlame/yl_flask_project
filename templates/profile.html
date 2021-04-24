@@ -1,64 +1,85 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <h1>{{ title }}</h1>
-<div class="fs-3 fw-bold">{{ user.name }}</div>
-<div class=""><img src="{{ url_for('user_avatar', id=user.id) }}" class="rounded-circle img-thumbnail" style="object-fit: cover;
+<div>
+    <div class="fs-3 fw-bold">{{ user.name }}</div>
+    <div class="fs-4">(id={{ user.id }})</div>
+</div>
+<div class=""><img src="{{ url_for('user_avatar', id=user.id) }}"
+                   class="rounded-circle img-thumbnail" style="object-fit: cover;
      		width:200px; height: 200px"></div>
 <div class="fs-4">Зарегистрирован {{ user.created_date }}</div>
 <div class="fs-5">{{ user.about }}</div>
-<a href="/profile/edit" class="btn btn-warning">
-    Редактировать профиль
-</a>
+{% if current_user.is_authenticated %}
+    {% if current_user == user %}
+    <a href="{{ url_for('edit_profile') }}" class="btn btn-warning" role="button">
+        Редактировать профиль
+    </a>
+    {% else %}
+        {% if not subscribe_yet %}
+        <a href="{{ url_for('subscribe_to_user', id=user.id) }}" class="btn btn-warning" role="button">
+            Подписаться на пользователя
+        </a>
+        {% else %}
+        <a href="{{ url_for('unsubscribe_to_user', id=user.id) }}" class="btn btn-warning" role="button">
+            Отписаться от пользователя
+        </a>
+        {% endif %}
+    {% endif %}
+{% endif %}
 <div class="fs-4">Статьи {{ user.name }}</div>
 {% if news %}
-    {% for item in news%}
-        <div class="row gap-2 p-3 my-2 border rounded">
-            <div>
-                {{item.content}}
-            </div>
-            <div>
-                Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
-            </div>
-            {% if current_user.is_authenticated and current_user == item.user %}
-            <div>
-                <a href="/news/edit/id{{ item.id }}" class="btn btn-warning">
-                    Изменить
-                </a>
-                <a href="/news/delete/id{{ item.id }}" class="btn btn-danger">
-                    Удалить
-                </a>
-            </div>
-            {% endif %}
-        </div>
-    {% endfor %}
+{% for item in news%}
+<div class="row gap-2 p-3 my-2 border rounded">
+    <div>
+        {{item.content}}
+    </div>
+    <div>
+        Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
+    </div>
+    {% if current_user.is_authenticated and current_user == item.user %}
+    <div>
+        <a href="/news/edit/id{{ item.id }}" class="btn btn-warning">
+            Изменить
+        </a>
+        <a href="/news/delete/id{{ item.id }}" class="btn btn-danger">
+            Удалить
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
 {% else %}
-    <div class="'fs-5 text-black-50">{{ user.name }} еще не написал ни одной статьи</div>
+<div class="'fs-5 text-black-50">{{ user.name }} еще не написал ни одной статьи</div>
 {% endif %}
+
 <div class="fs-4">Сообщества {{ user.name }}</div>
 {% if coms %}
-    {% for item in coms%}
-        <div class="row gap-2 p-3 my-2 border rounded">
-            <h2><a class="text-decoration-none text-body" href="/community/id{{ item.id }}">{{item.name}}</a></h2>
-            <div>
-                {{item.description[:40] + '...'}}
-            </div>
-            <div>
-                Создатель - {{item.creator.name}}, Дата создания - {{item.created_date}}
-            </div>
-            {% if current_user.is_authenticated and current_user == item.creator %}
-            <div>
-                <a href="/community/edit/id{{ item.id }}" class="btn btn-warning">
-                    Изменить
-                </a>
-                <a href="/community/delete/id{{ item.id }}" class="btn btn-danger">
-                    Удалить
-                </a>
-            </div>
-            {% endif %}
-        </div>
-    {% endfor %}
+{% for item in coms%}
+<div class="row gap-2 p-3 my-2 border rounded">
+    <h2><a class="text-decoration-none text-body"
+           href="/community/id{{ item.id }}">{{item.name}}</a></h2>
+    <div>
+        {{item.description[:40] + '...'}}
+    </div>
+    <div>
+        Создатель - {{item.creator.name}}, Дата создания - {{item.created_date}}
+    </div>
+    {% if current_user.is_authenticated and current_user == item.creator %}
+    <div>
+        <a href="/community/edit/id{{ item.id }}" class="btn btn-warning">
+            Изменить
+        </a>
+        <a href="/community/delete/id{{ item.id }}" class="btn btn-danger">
+            Удалить
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
 {% else %}
-    <div class="'fs-5 text-black-50">{{ user.name }} не является админом ни одного сообщества</div>
+<div class="'fs-5 text-black-50">{{ user.name }} не является админом ни одного сообщества</div>
 {% endif %}
 {% endblock %}

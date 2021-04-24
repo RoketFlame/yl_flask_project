@@ -21,7 +21,6 @@ class LoginForm(FlaskForm):
 
 class EditForm(FlaskForm):
     avatar = FileField(validators=[
-        FileRequired(),
         FileAllowed(['jpg', 'png'], 'Images only!')])
     email = EmailField('Почта', validators=[DataRequired()])
     old_password = PasswordField('Старый пароль')

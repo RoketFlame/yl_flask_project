@@ -8,6 +8,9 @@
 {% for item in news%}
 <div class="row gap-2 p-3 my-2 border rounded">
     <a href="{{ url_for('one_news', id=item.id) }}" class="text-body"><h2>{{item.title}}</h2></a>
+    {% if item.picture %}
+    <img src="{{ url_for('news_picture', id=item.id) }}" class="img-thumbnail" style="object-fit: cover; width: 200px; height: 200px">
+    {% endif %}
     <div>
         {{item.content}}
     </div>

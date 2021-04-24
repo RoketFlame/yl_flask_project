@@ -73,23 +73,24 @@ def login():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
+        if form.password.data == form.password_again.data:
+            db_sess = db_session.create_session()
+            if db_sess.query(User).filter(User.email == form.email.data).first():
+                flash("Такой пользователь уже есть")
+            else:
+                user = User(
+                    name=form.name.data,
+                    email=form.email.data,
+                    about=form.about.data
+                )
+                user.avatar = open('static/images/default_avatar.png', 'rb').read()
+                user.set_password(form.password.data)
+                db_sess.add(user)
+                db_sess.commit()
+                return redirect('/login')
+        else:
             flash('Пароли не совпадают')
-            return render_template('register.html', title='Регистрация', form=form)
-        db_sess = db_session.create_session()
-        if db_sess.query(User).filter(User.email == form.email.data).first():
-            flash("Такой пользователь уже есть")
-            return render_template('register.html', title='Регистрация', form=form)
-        user = User(
-            name=form.name.data,
-            email=form.email.data,
-            about=form.about.data
-        )
-        user.avatar = open('static/images/default_avatar.png', 'rb').read()
-        user.set_password(form.password.data)
-        db_sess.add(user)
-        db_sess.commit()
-        return redirect('/login')
+
     return render_template('register.html', title='Регистрация', form=form)
 
 
@@ -121,6 +122,7 @@ def add_news():
     return render_template('create_news.html', title='Добавление новости',
                            form=form)
 
+
 @app.route('/news/id<int:id>')
 @login_required
 def one_news(id):
@@ -150,6 +152,9 @@ def edit_news(id):
         db_sess = db_session.create_session()
         news = db_sess.query(News).filter(News.id == id).first()
         if news.user == current_user or news.community.creator == current_user and news:
+            f = form.picture.data
+            if f:
+                news.picture = f.read()
             news.title = form.title.data
             news.content = form.content.data
             news.is_private = form.is_private.data
@@ -186,12 +191,12 @@ def communities():
 
 
 @app.route('/community/id<int:id>')
+@login_required
 def community(id):
     db_sess = db_session.create_session()
     com = db_sess.query(Community).filter(Community.id == id).first()
-    com = com.make_json()
-    subscribe_to_community = com['id'] in [com.id for com in current_user.subscribes_community]
-    db_sess.close()
+    user = db_sess.query(User).filter(User.id == current_user.id).first()
+    subscribe_to_community = com.id in [c.id for c in user.subscribes_to_community]
     return render_template('community.html', com=com,
                            subscribe_to_community=subscribe_to_community)
 
@@ -207,6 +212,7 @@ def create_news_by_community(id):
         news.is_private = form.is_private.data
         news.is_published_by_community = True
         com = db_sess.query(Community).filter(Community.id == id).first()
+        news.community_id = id
         com.news.append(news)
         db_sess.merge(com)
         db_sess.commit()
@@ -307,7 +313,8 @@ def edit_profile():
             if form.new_password.data:
                 current_user.set_password(form.new_password.data)
             f = form.avatar.data
-            current_user.avatar = f.read()
+            if f:
+                current_user.avatar = f.read()
             current_user.name = form.name.data
             current_user.email = form.email.data
             current_user.about = form.about.data
@@ -332,13 +339,17 @@ def my_profile():
 def profile(id):
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.id == id).first()
+    db_sess.commit()
     news = user.news
     coms = user.communities
-    return render_template('profile.html', news=news, coms=coms, user=user)
+    if current_user.is_authenticated:
+        subscribe_yet = user in current_user.subscribes_to_user
+    else:
+        subscribe_yet = False
+    return render_template('profile.html', news=news, coms=coms, user=user, subscribe_yet=subscribe_yet)
 
 
 @app.route('/user_avatar/id<int:id>')
-@login_required
 def user_avatar(id):
     db_sess = db_session.create_session()
     img = db_sess.query(User).filter(User.id == id).first().avatar
@@ -348,6 +359,15 @@ def user_avatar(id):
     h.headers['Content-Type'] = 'image/png'
     return h
 
+@app.route('/news_picture/id<int:id>')
+def news_picture(id):
+    db_sess = db_session.create_session()
+    img = db_sess.query(News).filter(News.id == id).first().picture
+    if not img:
+        return ""
+    h = make_response(img)
+    h.headers['Content-Type'] = 'image/png'
+    return h
 
 @app.route('/community/subscribe/id<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -355,9 +375,7 @@ def subscribe_to_community(id):
     db_sess = db_session.create_session()
     com = db_sess.query(Community).filter(Community.id == id).first()
     user = db_sess.query(User).filter(User.id == current_user.id).first()
-    db_sess.delete(user)
     com.subscribers.append(user)
-    db_sess.add(user)
     db_sess.commit()
     flash('Вы успешно подписались')
     return redirect(url_for('community', id=id))
@@ -370,10 +388,44 @@ def unsubscribe_to_community(id):
     com = db_sess.query(Community).filter(Community.id == id).first()
     user = db_sess.query(User).filter(User.id == current_user.id).first()
     com.subscribers.remove(user)
-    db_sess.add(user)
     db_sess.commit()
     flash('Вы успешно отписались')
     return redirect(url_for('community', id=id))
+
+
+@app.route('/profile/subscribe/id<int:id>')
+@login_required
+def subscribe_to_user(id):
+    if id not in [user.id for user in current_user.subscribes_to_user]:
+        db_sess = db_session.create_session()
+        user_to = db_sess.query(User).filter(User.id == id).first()
+        user = db_sess.query(User).filter(User.id == current_user.id).first()
+        db_sess.delete(user)
+        user_to.subscribers.append(user)
+        db_sess.add(user)
+        db_sess.commit()
+        flash('Вы успешно подписались')
+    else:
+        flash('Вы уже подписаны')
+    return redirect(url_for('profile', id=id))
+
+
+@app.route('/profile/unsubscribe/id<int:id>')
+@login_required
+def unsubscribe_to_user(id):
+    try:
+        db_sess = db_session.create_session()
+        user_to = db_sess.query(User).filter(User.id == id).first()
+        user = db_sess.query(User).filter(User.id == current_user.id).first()
+        user.subscribes_to_user.remove(user_to)
+        db_sess.add(user_to)
+        db_sess.commit()
+        flash('Вы успешно отписались')
+    except:
+        flash('Вы не были подписаны на этого пользователя')
+    return redirect(url_for('profile', id=id))
+
+
 
 if __name__ == '__main__':
     app.run(port=8000, host='127.0.0.1')

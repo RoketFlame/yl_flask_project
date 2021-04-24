@@ -52,6 +52,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\forms\news.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\forms\user.py">
           <value>
             <Attribute>

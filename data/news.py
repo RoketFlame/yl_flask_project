@@ -22,6 +22,7 @@ class News(SqlAlchemyBase):
 
     community_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('communities.id'),
                                      default=None, nullable=True)
+    picture = sqlalchemy.Column(sqlalchemy.BLOB)
 
     user = orm.relation('User')
     community = orm.relation('Community')

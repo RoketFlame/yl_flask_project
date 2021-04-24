@@ -24,31 +24,32 @@
                 <li><a href="/news" class="nav-link text-white pe-5 fs-4">Новости</a></li>
             </ul>
             {% if current_user.is_authenticated %}
-            <!--            <a class="navbar-brand fs-3 pe-5" href="/logout">Привет, {{ current_user.name }}</a>-->
-            <div class="dropdown">
-                <a class="nav-link dropdown-toggle fs-3 pe-5" href="#" id="navbarDarkDropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" style="color: #ced4da">
-                    {{ current_user.name }}
-                </a>
-                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-                    <li><a class="dropdown-item" href="/news/my">Мои статьи</a></li>
-                    <li><a class="dropdown-item" href="/communities/my">Мои сообщества</a></li>
-                    <li><a class="dropdown-item" href="/profile">Профиль</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="/logout">Выйти</a></li>
-                </ul>
-            </div>
+            <div class=""><img src="{{ url_for('user_avatar', id=current_user.id) }}" class="rounded-circle img-thumbnail" style="object-fit: cover;
+     		width:60px; height: 60px"></div>
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle fs-3 pe-5" href="#" id="navbarDarkDropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" style="color: #ced4da">
+                        {{ current_user.name }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                        <li><a class="dropdown-item" href="/news/my">Мои статьи</a></li>
+                        <li><a class="dropdown-item" href="/communities/my">Мои сообщества</a></li>
+                        <li><a class="dropdown-item" href="/profile">Профиль</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">Выйти</a></li>
+                    </ul>
+                </div>
             {% else %}
-            <p class="m-2 px-5">
-                <a class="btn btn btn-warning me-2" href="/register" role="button">Зарегистрироваться</a>
-                <a class="btn btn-outline-light ml-2" href="/login" role="button">Войти</a>
-            </p>
+                <p class="m-2 px-5">
+                    <a class="btn btn btn-warning me-2" href="/register" role="button">Зарегистрироваться</a>
+                    <a class="btn btn-outline-light ml-2" href="/login" role="button">Войти</a>
+                </p>
             {% endif %}
         </div>
     </div>
 </header>
 <!-- Begin page content -->
 {% for msg in get_flashed_messages() %}
-<div class="alert alert-danger" role="alert">
+<div class="alert alert-danger" role="alert" aria-expanded="false">
     {{ msg }}
 </div>
 {% endfor %}
