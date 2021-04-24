@@ -24,7 +24,7 @@ class Community(SqlAlchemyBase):
                                      default=make_creation_date())
     creator_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
-
+    avatar = sqlalchemy.Column(sqlalchemy.BLOB)
     creator = orm.relation('User')
     news = orm.relation("News", back_populates='community')
 

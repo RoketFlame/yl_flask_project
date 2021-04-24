@@ -346,7 +346,8 @@ def profile(id):
         subscribe_yet = user in current_user.subscribes_to_user
     else:
         subscribe_yet = False
-    return render_template('profile.html', news=news, coms=coms, user=user, subscribe_yet=subscribe_yet)
+    return render_template('profile.html', news=news, coms=coms, user=user,
+                           subscribe_yet=subscribe_yet)
 
 
 @app.route('/user_avatar/id<int:id>')
@@ -359,6 +360,7 @@ def user_avatar(id):
     h.headers['Content-Type'] = 'image/png'
     return h
 
+
 @app.route('/news_picture/id<int:id>')
 def news_picture(id):
     db_sess = db_session.create_session()
@@ -368,6 +370,7 @@ def news_picture(id):
     h = make_response(img)
     h.headers['Content-Type'] = 'image/png'
     return h
+
 
 @app.route('/community/subscribe/id<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -426,6 +429,15 @@ def unsubscribe_to_user(id):
     return redirect(url_for('profile', id=id))
 
 
+@app.route('/community/id<int:id>/avatar')
+def communities_avatar(id):
+    db_sess = db_session.create_session()
+    img = db_sess.query(Community).filter(News.id == id).first().avatar
+    if not img:
+        img = open('static/images/default_avatar.png', 'rb').read()
+    h = make_response(img)
+    h.headers['Content-Type'] = 'image/png'
+    return h
 
 if __name__ == '__main__':
     app.run(port=8000, host='127.0.0.1')
