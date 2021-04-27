@@ -3,15 +3,28 @@
 {% block content %}
 
 <h1>{{ com.name }}</h1>
-<div class="fs-4">Создатель - <a class="text-decoration-none text-body" href="/profile/id{{ com.creator.id }}">{{com.creator.name}}</a></div>
+<div class="fs-4">Создатель - <a class="text-decoration-none text-body" href="{{ url_for('profile', id=com.id) }}">{{com.creator.name}}</a></div>
 <div class="fs-4">Дата создания - {{ com.created_date }}</div>
 <div class="fs-3">Описание</div>
 <div class="fs-5">{{ com.description }}</div>
+{% if com.avatar %}
+<img src="{{ url_for('communities_avatar', id=com.id) }}" class="img-thumbnail my-3" style="object-fit: cover; max-width: 800px; max-height: 300px"><br>
+{% endif %}
+
 
 {% if current_user == com.creator %}
-    <a href="{{url_for('create_news_by_community', id=com.id) }}" class="btn btn-secondary">
+<div>
+    <a href="{{ url_for('edit_community', id=com.id) }}" class="btn btn-warning">
+        Изменить
+    </a>
+    <a href="{{ url_for('delete_community', id=com.id) }}" class="btn btn-danger">
+        Удалить
+    </a>
+
+    <a href="{{ url_for('create_news_by_community', id=com.id) }}" class="btn btn-secondary">
         Добавить новость
     </a>
+</div>
 {% else %}
     {% if not subscribe_to_community %}
         <a class="btn btn-primary" href="{{ url_for('subscribe_to_community', id=com.id) }}" role="button">
@@ -35,10 +48,10 @@
     </div>
     {% if current_user.is_authenticated and current_user == item.user or current_user == item.community.creator %}
     <div>
-        <a href="/news/edit/id{{ item.id }}" class="btn btn-warning">
+        <a href="{{ url_for('edit_news', id=item.id) }}" class="btn btn-warning">
             Изменить
         </a>
-        <a href="/news/delete/id{{ item.id }}" class="btn btn-danger">
+        <a href="{{ url_for('delete_news', id=item.id) }}" class="btn btn-danger">
             Удалить
         </a>
     </div>

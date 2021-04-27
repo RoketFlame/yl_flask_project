@@ -7,23 +7,38 @@
 <h1>{{ title }}</h1>
 {% for item in coms%}
 <div class="row gap-2 p-3 my-2 border rounded">
-    <h2><a class="text-body text-decoration-none" href="/community/id{{ item.id }}">{{item.name}}</a></h2>
-    <div>
-        {{item.description[:40] + '...'}}
+    <div class="container">
+        <div class="row">
+            <div class="col-2">
+                <img src="{{ url_for('communities_avatar', id=item.id) }}" class="img-thumbnail"
+                     style="object-fit: cover; width: 200px; height: 200px">
+            </div>
+            <div class="col">
+                <div class="container">
+                    <h2><a class="text-body text-decoration-none py-3" href="{{ url_for('community', id=item.id) }}">{{item.name}}</a>
+                    </h2>
+                    <div>
+                        {{ item.description }}
+                    </div>
+                    <div class="py-3">
+                        Создатель - <a class="text-decoration-none text-body py-3"
+                                       href="{{ url_for('profile', id=item.creator.id) }}">{{item.creator.name}}</a>,
+                        Дата создания - {{item.created_date}}
+                    </div>
+                    {% if current_user.is_authenticated and current_user == item.creator %}
+                    <div class="pt-4">
+                        <a href="{{ url_for('edit_community', id=item.id) }}" class="btn btn-warning">
+                            Изменить
+                        </a>
+                        <a href="{{ url_for('delete_community', id=item.id) }}" class="btn btn-danger">
+                            Удалить
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-    <div>
-        Создатель - <a class="text-decoration-none text-body" href="/profile/id{{ item.creator.id }}">{{item.creator.name}}</a>, Дата создания - {{item.created_date}}
-    </div>
-    {% if current_user.is_authenticated and current_user == item.creator %}
-    <div>
-        <a href="/community/edit/id{{ item.id }}" class="btn btn-warning">
-            Изменить
-        </a>
-        <a href="/community/delete/id{{ item.id }}" class="btn btn-danger">
-            Удалить
-        </a>
-    </div>
-    {% endif %}
 </div>
 {% endfor %}
 {% endblock %}

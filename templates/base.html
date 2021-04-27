@@ -20,8 +20,12 @@
         <div class="d-flex flex-wrap navbar navbar-dark bg-dark sticky-top py-0">
             <a class="navbar-brand text-center fs-2 ps-5 fw-bold" href="/">CyberNews</a>
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="/communities" class="nav-link text-white fs-4">Сообщества</a></li>
-                <li><a href="/news" class="nav-link text-white pe-5 fs-4">Новости</a></li>
+                <li><a href="{{ url_for('communities') }}" class="nav-link text-white fs-4">Сообщества</a></li>
+                <li><a href="{{ url_for('news') }}" class="nav-link text-white pe-5 fs-4">Новости</a></li>
+                <li><form class="py-2 d-flex px-2 mx-2" action="{{ url_for('search') }}">
+                    <input type="search" class="form-control form-control-dark" name="text" placeholder="Поиск">
+                    <button class="btn btn-outline-secondary mx-2" type="submit">Search</button>
+                </form></li>
             </ul>
             {% if current_user.is_authenticated %}
             <div class=""><img src="{{ url_for('user_avatar', id=current_user.id) }}" class="rounded-circle img-thumbnail" style="object-fit: cover;
@@ -31,22 +35,24 @@
                         {{ current_user.name }}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-                        <li><a class="dropdown-item" href="/news/my">Мои статьи</a></li>
-                        <li><a class="dropdown-item" href="/communities/my">Мои сообщества</a></li>
-                        <li><a class="dropdown-item" href="/profile">Профиль</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('my_news') }}">Мои статьи</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('my_communities') }}">Мои сообщества</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('my_profile') }}">Профиль</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/logout">Выйти</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('logout') }}">Выйти</a></li>
                     </ul>
                 </div>
             {% else %}
                 <p class="m-2 px-5">
-                    <a class="btn btn btn-warning me-2" href="/register" role="button">Зарегистрироваться</a>
-                    <a class="btn btn-outline-light ml-2" href="/login" role="button">Войти</a>
+                    <a class="btn btn btn-warning me-2" href="{{ url_for('register') }}" role="button">Зарегистрироваться</a>
+                    <a class="btn btn-outline-light ml-2" href="{{ url_for('login') }}" role="button">Войти</a>
                 </p>
             {% endif %}
         </div>
     </div>
 </header>
+
+
 <!-- Begin page content -->
 {% for msg in get_flashed_messages() %}
 <div class="alert alert-danger" role="alert" aria-expanded="false">

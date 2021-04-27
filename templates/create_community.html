@@ -2,8 +2,15 @@
 
 {% block content %}
 <h1>{{ title }}</h1>
-<form action="" method="post">
+<form action="" method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
+    <p>
+        {{ form.picture.label }}<br>
+        {{ form.picture() }}<br>
+        {% for error in form.picture.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+        {% endfor %}
     <p>
         {{ form.name.label }}<br>
         {{ form.name(class="form-control") }}<br>

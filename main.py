@@ -112,6 +112,9 @@ def add_news():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         news = News()
+        f = form.picture.data
+        if f:
+            news.picture = f.read()
         news.title = form.title.data
         news.content = form.content.data
         news.is_private = form.is_private.data
@@ -167,7 +170,7 @@ def edit_news(id):
 
 @app.route('/news/delete/id<int:id>', methods=['GET', 'POST'])
 @login_required
-def news_delete(id):
+def delete_news(id):
     db_sess = db_session.create_session()
     news = db_sess.query(News).filter(News.id == id).first()
     if news.is_published_by_community:
@@ -228,6 +231,9 @@ def create_community():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         com = Community()
+        f = form.picture.data
+        if f:
+            com.avatar = f.read()
         com.name = form.name.data
         com.description = form.description.data
         com.creator = current_user
@@ -245,22 +251,25 @@ def edit_community(id):
     form = CommunityForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
-        coms = db_sess.query(Community).filter(Community.id == id,
-                                               Community.creator == current_user
-                                               ).first()
-        if coms:
-            form.name.data = coms.name
-            form.description.data = coms.description
+        com = db_sess.query(Community).filter(Community.id == id,
+                                              Community.creator == current_user
+                                              ).first()
+        if com:
+            form.name.data = com.name
+            form.description.data = com.description
         else:
             abort(404)
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        coms = db_sess.query(Community).filter(Community.id == id,
-                                               Community.creator == current_user
-                                               ).first()
-        if news:
-            coms.name = form.name.data
-            coms.description = form.description.data
+        com = db_sess.query(Community).filter(Community.id == id,
+                                              Community.creator == current_user
+                                              ).first()
+        if com:
+            f = form.picture.data
+            if f:
+                com.avatar = f.read()
+            com.name = form.name.data
+            com.description = form.description.data
             db_sess.commit()
             return redirect(url_for('community', id=id))
         else:
@@ -432,12 +441,23 @@ def unsubscribe_to_user(id):
 @app.route('/community/id<int:id>/avatar')
 def communities_avatar(id):
     db_sess = db_session.create_session()
-    img = db_sess.query(Community).filter(News.id == id).first().avatar
+    img = db_sess.query(Community).filter(Community.id == id).first().avatar
     if not img:
         img = open('static/images/default_avatar.png', 'rb').read()
     h = make_response(img)
     h.headers['Content-Type'] = 'image/png'
     return h
+
+
+@app.route('/search')
+def search():
+    value = request.args.get("text")
+    db_sess = db_session.create_session()
+    coms = db_sess.query(Community).filter((Community.name.like(f"%{value}%")) | (Community.description.like(f"%{value}%"))).all()
+    users = db_sess.query(User).filter((User.name.like(f"%{value}%")) | (User.about.like(f"%{value}%"))).all()
+    news = db_sess.query(News).filter((News.title.like(f"%{value}%")) | (News.content.like(f"%{value}%"))).all()
+    return render_template('search.html', coms=coms, users=users, news=news, title='Поиск', value=value)
+
 
 if __name__ == '__main__':
     app.run(port=8000, host='127.0.0.1')

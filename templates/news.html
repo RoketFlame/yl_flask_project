@@ -2,35 +2,53 @@
 
 {% block content %}
 {% if current_user.is_authenticated %}
-<a href="/news/create" class="btn btn-secondary">Добавить новость</a>
+<a href="{{ url_for('add_news') }}" class="btn btn-secondary">Добавить новость</a>
 {% endif %}
 <h1>{{ title }}</h1>
 {% for item in news%}
 <div class="row gap-2 p-3 my-2 border rounded">
-    <a href="{{ url_for('one_news', id=item.id) }}" class="text-body"><h2>{{item.title}}</h2></a>
     {% if item.picture %}
-    <img src="{{ url_for('news_picture', id=item.id) }}" class="img-thumbnail" style="object-fit: cover; width: 200px; height: 200px">
-    {% endif %}
-    <div>
-        {{item.content}}
+    <div class="container">
+        <div class="row">
+            <div class="col-2">
+                <img src="{{ url_for('news_picture', id=item.id) }}" class="img-thumbnail"
+                     style="object-fit: cover; width: 200px; height: 200px">
+            </div>
+            {% endif %}
+            <div class="col">
+                <div class="container">
+                    <a href="{{ url_for('one_news', id=item.id) }}" class="text-body"><h2>{{item.title}}</h2></a>
+                    <div>
+                        {{ item.content[:40] }}
+                    </div>
+                    <div>
+                        {% if item.is_published_by_community %}
+                        Автор - <a class="text-decoration-none text-body"
+                                   href="{{ url_for('community', id=item.community.id) }}">{{item.community.name}}</a>,
+                        Дата написания - {{item.created_date}}
+                        {% else %}
+                        Автор - <a class="text-decoration-none text-body"
+                                   href="{{ url_for('profile', id=item.user.id) }}">{{item.user.name}}</a>,
+                        Дата
+                        написания - {{item.created_date}}
+                        {% endif %}
+                    </div>
+                    {% if current_user.is_authenticated and current_user == item.user or
+                    item.community.creator ==
+                    current_user %}
+                    <div class="mt-5">
+                        <a href="{{ url_for('edit_news', id=item.id) }}" class="btn btn-warning">
+                            Изменить
+                        </a>
+                        <a href="{{ url_for('delete_news', id=item.id) }}" class="btn btn-danger">
+                            Удалить
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-    <div>
-        {% if item.is_published_by_community %}
-        Автор - <a class="text-decoration-none text-body" href="/community/id{{ item.community.id }}">{{item.community.name}}</a>, Дата написания - {{item.created_date}}
-        {% else %}
-        Автор - <a class="text-decoration-none text-body" href="/profile/id{{ item.user.id }}">{{item.user.name}}</a>, Дата написания - {{item.created_date}}
-        {% endif %}
-    </div>
-    {% if current_user.is_authenticated and current_user == item.user or item.community.creator == current_user %}
-    <div>
-        <a href="/news/edit/id{{ item.id }}" class="btn btn-warning">
-            Изменить
-        </a>
-        <a href="/news/delete/id{{ item.id }}" class="btn btn-danger">
-            Удалить
-        </a>
-    </div>
-    {% endif %}
 </div>
 {% endfor %}
 {% endblock %}

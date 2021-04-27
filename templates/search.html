@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Поиск по запросу "{{ value }}"</h1>
+
+{% if news %}
+    <div class="fs-4">Статьи</div>
+    {% for item in news%}
+<div class="row gap-2 p-3 my-2 border rounded">
+    {% if item.picture %}
+    <div class="container">
+        <div class="row">
+            <div class="col-2">
+                <img src="{{ url_for('news_picture', id=item.id) }}" class="img-thumbnail"
+                     style="object-fit: cover; width: 200px; height: 200px">
+            </div>
+            {% endif %}
+            <div class="col">
+                <div class="container">
+                    <a href="{{ url_for('one_news', id=item.id) }}" class="text-body"><h2>{{item.title}}</h2></a>
+                    <div>
+                        {{ item.content[:40] }}
+                    </div>
+                    <div>
+                        {% if item.is_published_by_community %}
+                        Автор - <a class="text-decoration-none text-body"
+                                   href="{{ url_for('community', id=item.community.id) }}">{{item.community.name}}</a>,
+                        Дата написания - {{item.created_date}}
+                        {% else %}
+                        Автор - <a class="text-decoration-none text-body"
+                                   href="{{ url_for('profile', id=item.user.id) }}">{{item.user.name}}</a>,
+                        Дата
+                        написания - {{item.created_date}}
+                        {% endif %}
+                    </div>
+                    {% if current_user.is_authenticated and current_user == item.user or
+                    item.community.creator ==
+                    current_user %}
+                    <div class="mt-5">
+                        <a href="{{ url_for('edit_news', id=item.id) }}" class="btn btn-warning">
+                            Изменить
+                        </a>
+                        <a href="{{ url_for('delete_news', id=item.id) }}" class="btn btn-danger">
+                            Удалить
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    {% endfor %}
+{% endif %}
+
+{% if coms %}
+<div class="fs-4">Сообщества</div>
+{% for item in coms%}
+<div class="row gap-2 p-3 my-2 border rounded">
+    <div class="container">
+        <div class="row">
+            <div class="col-2">
+                <img src="{{ url_for('communities_avatar', id=item.id) }}" class="img-thumbnail"
+                     style="object-fit: cover; width: 200px; height: 200px">
+            </div>
+            <div class="col">
+                <div class="container">
+                    <h2><a class="text-body text-decoration-none py-3" href="{{ url_for('community', id=item.id) }}">{{item.name}}</a>
+                    </h2>
+                    <div>
+                        {{ item.description }}
+                    </div>
+                    <div class="py-3">
+                        Создатель - <a class="text-decoration-none text-body py-3"
+                                       href="{{ url_for('profile', id=item.creator.id) }}">{{item.creator.name}}</a>,
+                        Дата создания - {{item.created_date}}
+                    </div>
+                    {% if current_user.is_authenticated and current_user == item.creator %}
+                    <div class="pt-4">
+                        <a href="{{ url_for('edit_community', id=item.id) }}" class="btn btn-warning">
+                            Изменить
+                        </a>
+                        <a href="{{ url_for('delete_community', id=item.id) }}" class="btn btn-danger">
+                            Удалить
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if users %}
+<div class="fs-4">Пользователи</div>
+{% for item in users%}
+<div class="row gap-2 p-3 my-2 border rounded">
+    <a href="{{ url_for('profile', id=item.id) }}" class="text-body"><h2>{{ item.name }}</h2></a>
+    <img src="{{ url_for('user_avatar', id=item.id) }}" class="rounded-circle img-thumbnail" style="object-fit: cover; width: 200px; height: 200px">
+    <div>
+        {{ item.about }}
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+{% endblock %}

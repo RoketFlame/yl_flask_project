@@ -12,7 +12,7 @@
 {% endif %}
 <div class="fs-5">{{ news.content }}</div>
     {% if current_user.is_authenticated and current_user == news.user or current_user == news.community.creator %}
-<div>
+<div class="my-3">
     <a href="/news/edit/id{{ news.id }}" class="btn btn-warning">
         Изменить
     </a>
