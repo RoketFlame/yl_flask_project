@@ -17,11 +17,12 @@
 <body>
 <header class="p-3 bg-dark text-white">
     <div class="container">
-        <div class="d-flex flex-wrap navbar navbar-dark bg-dark sticky-top py-0">
-            <a class="navbar-brand text-center fs-2 ps-5 fw-bold" href="/">CyberNews</a>
-            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+        <div class="d-flex flex-wrap navbar navbar-dark bg-dark sticky-top py-0 my-0 align-items-center">
+            <ul class="nav col-12 col-lg-auto me-lg-auto justify-content-center mb-md-0 py-0">
+                <li><a class="navbar-brand fs-2 fw-bold " href="/">CyberNews</a></li>
                 <li><a href="{{ url_for('communities') }}" class="nav-link text-white fs-4">Сообщества</a></li>
-                <li><a href="{{ url_for('news') }}" class="nav-link text-white pe-5 fs-4">Новости</a></li>
+                <li><a href="{{ url_for('news') }}" class="nav-link text-white fs-4">Новости</a></li>
+                <li><a href="{{ url_for('users') }}" class="nav-link text-white fs-4">Пользователи</a></li>
                 <li><form class="py-2 d-flex px-2 mx-2" action="{{ url_for('search') }}">
                     <input type="search" class="form-control form-control-dark" name="text" placeholder="Поиск">
                     <button class="btn btn-outline-secondary mx-2" type="submit">Search</button>
@@ -38,6 +39,7 @@
                         <li><a class="dropdown-item" href="{{ url_for('my_news') }}">Мои статьи</a></li>
                         <li><a class="dropdown-item" href="{{ url_for('my_communities') }}">Мои сообщества</a></li>
                         <li><a class="dropdown-item" href="{{ url_for('my_profile') }}">Профиль</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('subscribes') }}">Подписки</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{{ url_for('logout') }}">Выйти</a></li>
                     </ul>

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<center><div class="fs-2 fs-bold">Ваши подписки</div></center>
+<div class="fs-3">Сообщества</div>
+{% if coms %}
+{% for item in coms%}
+<div class="row gap-2 p-3 my-2 border rounded">
+    <div class="container">
+        <div class="row">
+            <div class="col-2">
+                <img src="{{ url_for('communities_avatar', id=item.id) }}" class="img-thumbnail"
+                     style="object-fit: cover; width: 200px; height: 200px">
+            </div>
+            <div class="col">
+                <div class="container">
+                    <h2><a class="text-body text-decoration-none py-3" href="{{ url_for('community', id=item.id) }}">{{item.name}}</a>
+                    </h2>
+                    <div>
+                        {{ item.description }}
+                    </div>
+                    <div class="py-3">
+                        Создатель - <a class="text-decoration-none text-body py-3"
+                                       href="{{ url_for('profile', id=item.creator.id) }}">{{item.creator.name}}</a>,
+                        Дата создания - {{item.created_date}}
+                    </div>
+                    {% if current_user.is_authenticated and current_user == item.creator %}
+                    <div class="pt-4">
+                        <a href="{{ url_for('edit_community', id=item.id) }}" class="btn btn-warning">
+                            Изменить
+                        </a>
+                        <a href="{{ url_for('delete_community', id=item.id) }}" class="btn btn-danger">
+                            Удалить
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="'fs-3 text-black-50">Вы еще не подписаны ни на одно сообщество</div>
+{% endif %}
+
+{% if users %}
+<div class="fs-3">Пользователи</div>
+{% for item in users%}
+<div class="row gap-2 p-3 my-2 border rounded">
+    <a href="{{ url_for('profile', id=item.id) }}" class="text-body"><h2>{{ item.name }}</h2></a>
+    <div>
+        {{ item.about }}
+    </div>
+    <img src="{{ url_for('user_avatar', id=item.id) }}" class="rounded-circle img-thumbnail" style="object-fit: cover; width: 200px; height: 200px">
+</div>
+{% endfor %}
+
+{% else %}
+<div class="'fs-3 text-black-50">ВЫ не подписались еще ни на одного пользователя</div>
+{% endif %}
+
+{% endblock %}

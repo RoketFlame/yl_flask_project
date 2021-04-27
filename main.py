@@ -459,5 +459,19 @@ def search():
     return render_template('search.html', coms=coms, users=users, news=news, title='Поиск', value=value)
 
 
+@app.route('/users')
+@login_required
+def users():
+    db_sess = db_session.create_session()
+    users = db_sess.query(User).all()
+    return render_template('users.html', users=users)
+
+@app.route('/subscribes')
+@login_required
+def subscribes():
+    coms = current_user.subscribes_to_community
+    users =  current_user.subscribes_to_user
+    return render_template('subscribes.html', coms=coms, users=users)
+
 if __name__ == '__main__':
     app.run(port=8000, host='127.0.0.1')

@@ -99,10 +99,10 @@
 {% for item in users%}
 <div class="row gap-2 p-3 my-2 border rounded">
     <a href="{{ url_for('profile', id=item.id) }}" class="text-body"><h2>{{ item.name }}</h2></a>
-    <img src="{{ url_for('user_avatar', id=item.id) }}" class="rounded-circle img-thumbnail" style="object-fit: cover; width: 200px; height: 200px">
     <div>
         {{ item.about }}
     </div>
+    <img src="{{ url_for('user_avatar', id=item.id) }}" class="rounded-circle img-thumbnail" style="object-fit: cover; width: 200px; height: 200px">
 </div>
 {% endfor %}
 {% endif %}
