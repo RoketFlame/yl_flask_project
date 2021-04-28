@@ -11,7 +11,7 @@
 <img src="{{ url_for('communities_avatar', id=com.id) }}" class="img-thumbnail my-3" style="object-fit: cover; max-width: 800px; max-height: 300px"><br>
 {% endif %}
 
-
+<div class="fs-5 mb-3">Число подписок {{ len }}</div>
 {% if current_user == com.creator %}
 <div>
     <a href="{{ url_for('edit_community', id=com.id) }}" class="btn btn-warning">

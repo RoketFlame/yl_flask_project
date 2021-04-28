@@ -207,8 +207,9 @@ def community(id):
     com = db_sess.query(Community).filter(Community.id == id).first()
     user = db_sess.query(User).filter(User.id == current_user.id).first()
     subscribe_to_community = com.id in [c.id for c in user.subscribes_to_community]
+    _len = len([user for user in com.subscribers])
     return render_template('community.html', com=com,
-                           subscribe_to_community=subscribe_to_community)
+                           subscribe_to_community=subscribe_to_community, len=_len)
 
 
 @app.route('/community/id<int:id>/news/create', methods=['GET', 'POST'])
