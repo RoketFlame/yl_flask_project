@@ -25,13 +25,11 @@
                         {% if item.is_published_by_community %}
                         Автор - <a class="text-decoration-none text-body"
                                    href="{{ url_for('community', id=item.community.id) }}">{{item.community.name}}</a>,
-                        Дата написания - {{item.created_date}}
                         {% else %}
                         Автор - <a class="text-decoration-none text-body"
                                    href="{{ url_for('profile', id=item.user.id) }}">{{item.user.name}}</a>,
-                        Дата
-                        написания - {{item.created_date}}
                         {% endif %}
+                        Дата написания - {{item.created_date}}
                     </div>
                     {% if current_user.is_authenticated and current_user == item.user or
                     item.community.creator ==

@@ -6,8 +6,9 @@ from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
 
 from data import db_session
-from flask import Flask, render_template, redirect, request, url_for, flash, make_response
+from flask import Flask, render_template, redirect, request, url_for, flash, make_response, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_restful import reqparse, abort, Api, Resource
 
 from data.news import News
 from data.users import User
@@ -17,9 +18,14 @@ from forms.community import CommunityForm
 from forms.news import NewsForm
 from forms.user import RegisterForm, LoginForm, EditForm
 
+import api_news
+from resources import news_resources
+from functions import get_fps
+
 db_session.global_init("db/blogs.db")
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+api = Api(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -453,10 +459,14 @@ def communities_avatar(id):
 def search():
     value = request.args.get("text")
     db_sess = db_session.create_session()
-    coms = db_sess.query(Community).filter((Community.name.like(f"%{value}%")) | (Community.description.like(f"%{value}%"))).all()
-    users = db_sess.query(User).filter((User.name.like(f"%{value}%")) | (User.about.like(f"%{value}%"))).all()
-    news = db_sess.query(News).filter((News.title.like(f"%{value}%")) | (News.content.like(f"%{value}%"))).all()
-    return render_template('search.html', coms=coms, users=users, news=news, title='Поиск', value=value)
+    coms = db_sess.query(Community).filter(
+        (Community.name.like(f"%{value}%")) | (Community.description.like(f"%{value}%"))).all()
+    users = db_sess.query(User).filter(
+        (User.name.like(f"%{value}%")) | (User.about.like(f"%{value}%"))).all()
+    news = db_sess.query(News).filter(
+        (News.title.like(f"%{value}%")) | (News.content.like(f"%{value}%"))).all()
+    return render_template('search.html', coms=coms, users=users, news=news, title='Поиск',
+                           value=value)
 
 
 @app.route('/users')
@@ -466,12 +476,34 @@ def users():
     users = db_sess.query(User).all()
     return render_template('users.html', users=users)
 
+
 @app.route('/subscribes')
 @login_required
 def subscribes():
     coms = current_user.subscribes_to_community
-    users =  current_user.subscribes_to_user
+    users = current_user.subscribes_to_user
     return render_template('subscribes.html', coms=coms, users=users)
 
+
+@app.route('/computer_calculator', methods=['GET', 'POST'])
+@login_required
+def computer_calculator():
+    fps = None
+    with open('static/computer.json') as js_file:
+        data = json.load(js_file)
+    if request.method == 'GET':
+        return render_template('calculator.html', js_f=data)
+    if request.method == 'POST':
+        gpu = request.form.get('gpu')
+        cpu = request.form.get('cpu')
+        ram = request.form.get('ram')
+        game = request.form.get('game')
+        fps = get_fps(gpu, cpu, ram, game)
+        return render_template('calculator.html', js_f=data, fps=fps)
+
+
 if __name__ == '__main__':
+    api.add_resource(news_resources.NewsListResource, '/api/news')
+    api.add_resource(news_resources.NewsResource, '/api/news/<int:news_id>')
+    app.register_blueprint(api_news.blueprint)
     app.run(port=8000, host='127.0.0.1')

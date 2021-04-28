@@ -5,3 +5,4 @@
 /__pycache__
 /alembic.ini
 /alembic/
+/test.py

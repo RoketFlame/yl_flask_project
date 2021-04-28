@@ -2,6 +2,7 @@ import datetime
 import sqlalchemy
 
 from sqlalchemy import orm
+from sqlalchemy_serializer import SerializerMixin
 
 from functions import make_creation_date
 from .db_session import SqlAlchemyBase

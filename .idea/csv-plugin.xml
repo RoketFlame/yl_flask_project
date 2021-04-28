@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\api\api_news.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\communities.py">
           <value>
             <Attribute>
@@ -80,6 +87,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\resources\news_resources.py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\templates\base.html">
           <value>
             <Attribute>
@@ -98,6 +112,13 @@
           <value>
             <Attribute>
               <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\test.py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
             </Attribute>
           </value>
         </entry>

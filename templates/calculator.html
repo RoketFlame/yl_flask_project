@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>
+    Видеокарта
+</h1>
+<form action="{{ url_for('computer_calculator') }}" method="post" enctype="multipart/form-data">
+    <select class="form-select" aria-label="Default select example" name="gpu" id="gpu">
+        <option selected>Выберите видеокарту</option>
+        {% for gpu in js_f['video_cards'].keys() %}
+        <option value="{{ gpu }}">{{ gpu }}</option>
+        {% endfor %}
+    </select>
+    <h1>
+        Процессор
+    </h1>
+    <select class="form-select" aria-label="Default select example" name="cpu" id="cpu">
+        <option selected>Выберите процессор</option>
+        {% for cpu in js_f['cpus'].keys() %}
+        <option value="{{ cpu }}">{{ cpu }}</option>
+        {% endfor %}
+    </select>
+    <h1>
+        Оперативная память
+    </h1>
+    <select class="form-select" aria-label="Default select example" name="ram" id="ram">
+        <option selected>Выберите оперативную память</option>
+        {% for ram in js_f['ram'].keys() %}
+        <option value="{{ ram }}">{{ ram }}</option>
+        {% endfor %}
+    </select>
+
+    <h1>
+        Игра
+    </h1>
+    <select class="form-select" aria-label="Default select example" name="game" id="game">
+        <option selected>Выберите тестируемую игру</option>
+        {% for game in js_f['games'].keys() %}
+        <option value="{{ game }}">{{ game }}</option>
+        {% endfor %}
+    </select>
+    <input class="btn btn-primary my-3" id="submit" name="submit" type="submit" value="Применить">
+</form>
+
+{% if fps %}
+<center>
+    <div class="fs-2">Твой FPS: {{ fps }}</div>
+</center>
+{% endif %}
+
+{% endblock %}
