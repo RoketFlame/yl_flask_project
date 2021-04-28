@@ -1,0 +1,23 @@
+{
+  "video_cards": {
+    "GeForce GTX 1060": {"points": 330, "coef":  1},
+    "GeForce GTX 1660 Super": {"points": 500, "coef": 1},
+    "GeForce RTX 2080": {"points":  900, "coef": 1}
+  },
+  "cpus": {
+    "AMD Ryzen 5 3600X": {"points": 100, "coef":  1},
+    "Intel Core i9-7940X": {"points": 155, "coef":  1},
+    "AMD Ryzen 9 3950X": {"points": 200, "coef": 1}
+  },
+  "ram": {
+    "G.SKILL Aegis 16GB C16": {"points": 10, "GB": 16},
+    "Kingston HyperX Predator 2x8Gb": {"points": 12, "GB": 16},
+    "Kingston HyperX Fury 2x8Gb CL16": {"points": 15, "GB": 16}
+  },
+  "games": {
+    "COD: Warzone": {"coef": 7.55},
+    "CyberPunk 2077": {"coef": 11},
+    "Resident Evil Village": {"coef": 8.25},
+    "CS:GO": {"coef": 3}
+  }
+}
