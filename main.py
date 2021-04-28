@@ -2,6 +2,7 @@ import json
 import os
 import copy
 
+import waitress
 from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
 
@@ -506,4 +507,4 @@ if __name__ == '__main__':
     api.add_resource(news_resources.NewsListResource, '/api/news')
     api.add_resource(news_resources.NewsResource, '/api/news/<int:news_id>')
     app.register_blueprint(api_news.blueprint)
-    app.run(port=8000, host='127.0.0.1')
+    waitress.serve(app, host='127.0.0.1', port=8000)
