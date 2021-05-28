@@ -14,9 +14,10 @@ from flask_restful import reqparse, abort, Api, Resource
 from data.news import News
 from data.users import User
 from data.communities import Community
+from data.comments import Comment
 
 from forms.community import CommunityForm
-from forms.news import NewsForm
+from forms.news import NewsForm, Commenting
 from forms.user import RegisterForm, LoginForm, EditForm
 
 import api_news
@@ -133,12 +134,22 @@ def add_news():
                            form=form)
 
 
-@app.route('/news/id<int:id>')
+@app.route('/news/id<int:id>', methods=['GET', 'POST'])
 @login_required
 def one_news(id):
+    form = Commenting()
     db_sess = db_session.create_session()
     news = db_sess.query(News).filter(News.id == id).first()
-    return render_template('one_news.html', news=news, title=news.title)
+    commets = news.comments
+    if request.method == 'POST':
+        comment = Comment()
+        comment.user = db_sess.query(User).filter(User.id == current_user.id).first()
+        comment.news = news
+        comment.content = form.content.data
+        news.comments.append(comment)
+        db_sess.commit()
+        return redirect(url_for('one_news', id=id))
+    return render_template('one_news.html', news=news, title=news.title, form=form, comments=commets)
 
 
 @app.route('/news/edit/id<int:id>', methods=['GET', 'POST'])
@@ -508,5 +519,6 @@ if __name__ == '__main__':
     api.add_resource(news_resources.NewsListResource, '/api/news')
     api.add_resource(news_resources.NewsResource, '/api/news/<int:news_id>')
     app.register_blueprint(api_news.blueprint)
-    port = int(os.environ.get("PORT", 5000))
-    waitress.serve(app, host='0.0.0.0', port=port)
+    app.run(port=8000, host='127.0.0.1')
+    # port = int(os.environ.get("PORT", 5000))
+    # waitress.serve(app, host='0.0.0.0', port=port)

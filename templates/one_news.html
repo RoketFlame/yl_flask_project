@@ -3,15 +3,17 @@
 {% block content %}
 <h1>{{ title }}</h1>
 {% if news.picture %}
-    <img src="{{ url_for('news_picture', id=news.id) }}" style="object-fit: cover; max-width: 800px; max-height: 300px"><br>
+<img src="{{ url_for('news_picture', id=news.id) }}" style="object-fit: cover; max-width: 800px; max-height: 300px"><br>
 {% endif %}
 {% if news.is_published_by_community %}
-    Автор - <a class="text-decoration-none text-body" href="/community/id{{ news.community.id }}">{{news.community.name}}</a>, Дата написания - {{news.created_date}}
+Автор - <a class="text-decoration-none text-body"
+           href="/community/id{{ news.community.id }}">{{news.community.name}}</a>, Дата написания - {{news.created_date}}
 {% else %}
-    Автор - <a class="text-decoration-none text-body" href="/profile/id{{ news.user.id }}">{{news.user.name}}</a>, Дата написания - {{news.created_date}}
+Автор - <a class="text-decoration-none text-body"
+           href="/profile/id{{ news.user.id }}">{{news.user.name}}</a>, Дата написания - {{news.created_date}}
 {% endif %}
 <div class="fs-5">{{ news.content }}</div>
-    {% if current_user.is_authenticated and current_user == news.user or current_user == news.community.creator %}
+{% if current_user.is_authenticated and current_user == news.user or current_user == news.community.creator %}
 <div class="my-3">
     <a href="/news/edit/id{{ news.id }}" class="btn btn-warning">
         Изменить
@@ -21,4 +23,34 @@
     </a>
 </div>
 {% endif %}
-{% endblock %} 
+<div class="fs-3">Комментарии</div>
+{% for comment in comments %}
+<div class="container">
+    <div class="row gx-2 justify-content-start">
+        <div class="col-1 p-0">
+            <div><a class="text-decoration-none text-body"
+                    href="/profile/id{{ comment.user.id }}"><img src="{{ url_for('user_avatar', id=comment.user.id) }}"
+                                  class="rounded-circle img-thumbnail" style="object-fit: cover;
+     		width:60px; height: 60px"></a></div>
+        </div>
+        <div class="col py-2">
+            <div class="col fs-4">{{ comment.content }}</div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+<form action="" method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    {{ form.content.label(class="p-3 text-nowrap p-2") }}
+    <div class="d-flex">
+        <img src="{{ url_for('user_avatar', id=current_user.id) }}" class="rounded-circle img-thumbnail" style="object-fit: cover;
+     		width:60px; height: 60px">
+        {{ form.content(class="form-control mx-3") }}<br>
+        {{ form.submit(type="submit", class="btn btn-primary mx-3 my-2") }}
+    </div>
+    {% for error in form.content.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+        {% endfor %}
+</form>
+{% endblock %}

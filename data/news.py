@@ -26,11 +26,12 @@ class News(SqlAlchemyBase):
                                      default=None, nullable=True)
     picture = sqlalchemy.Column(sqlalchemy.BLOB)
 
-    user = orm.relation('User')
-    community = orm.relation('Community')
-    categories = orm.relation("Category",
+    user = orm.relationship('User')
+    community = orm.relationship('Community')
+    categories = orm.relationship("Category",
                               secondary="association",
                               backref="news")
+    comments = orm.relationship('Comment')
 
     def make_json(self):
         result = {}

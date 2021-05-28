@@ -12,3 +12,8 @@ class NewsForm(FlaskForm):
     submit = SubmitField('Применить')
     picture = FileField('Картинка', validators=[
         FileAllowed(['jpg', 'png'], 'Images only!')])
+
+
+class Commenting(FlaskForm):
+    content = TextAreaField('Добавить комментарий', validators=[DataRequired()])
+    submit = SubmitField('Применить')
