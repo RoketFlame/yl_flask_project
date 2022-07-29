@@ -22,7 +22,7 @@ minidump==0.0.13
 minikerberos==0.2.9
 msldap==0.3.27
 Naked==0.1.31
-numpy==1.20.1
+numpy==1.22.0
 prompt-toolkit==3.0.16
 psutil==5.8.0
 pyasn1==0.4.8
