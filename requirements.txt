@@ -16,7 +16,7 @@ idna==2.10
 importlib-metadata==3.10.1
 itsdangerous==1.1.0
 Jinja2==2.11.3
-Mako==1.1.4
+Mako==1.2.2
 MarkupSafe==1.1.1
 minidump==0.0.13
 minikerberos==0.2.9
