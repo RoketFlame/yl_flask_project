@@ -42,7 +42,7 @@ typing-extensions==3.7.4.3
 urllib3==1.26.5
 waitress==2.1.2
 wcwidth==0.2.5
-Werkzeug==1.0.1
+Werkzeug==2.2.3
 winacl==0.1.1
 winsspi==0.0.9
 WTForms==2.3.3
